@@ -1,0 +1,107 @@
+<script>
+var REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+var COK_NAME = 'coworkers_credentials';
+function saveCred() {
+	var txtEmail = document.getElementById('txtBoxEmail');
+	var txtPass = document.getElementById('txtBoxPass');
+	if (txtEmail.value && txtPass.value && REGEX.test(txtEmail.value)) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					writeCookie(txtEmail.value + ':' + xhttp.responseXML.documentElement.textContent);
+					getMain();
+				}
+			}
+		};
+		xhttp.open('HTML_GET_SHA1', 'null');
+		xhttp.send(txtPass.value);
+	} else if (!txtEmail.value || !txtPass.value) {
+		displayWarning('Fields cannot be empty.');
+	} else if (!REGEX.test(txtEmail.value)) {
+		displayWarning('Invalid email format.');
+	}
+}
+function getLogin() {
+	deleteCookie();
+	getPage('LOGIN');
+}
+function getMain() {
+	getPage('MAIN');
+}
+function getChat() {
+	getPage('CHAT');
+}
+function getGoal() {
+	getPage('GOAL');
+}
+function getGoalEdit() {
+	getPage('GOALEDIT');
+}
+function getUserEdit() {
+	getPage('USER');
+}
+function getRegister() {
+	getPage('REGISTER');
+}
+function getPage(thePage) {
+	var tmpCred = readCookie();
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_GET_' + thePage, tmpCred);
+	xhttp.send();
+}
+function readCookie() {
+	if(document.cookie) {
+		var tmpSp = document.cookie.split(';');
+		for (var i = 0; i < tmpSp.length; i++) {
+			var tmpStr = tmpSp[i];
+			while (tmpStr.charAt(0) == ' ') {
+				tmpStr = tmpStr.substring(1);
+			}
+			if (tmpStr.indexOf(COK_NAME) === 0) {
+				var tmpCred = tmpStr.substring(COK_NAME.length + 1, tmpStr.length).trim();
+				if (tmpCred.includes(':')) {
+					return tmpCred;
+				} else {
+					return 'null';
+				}
+			}
+		}
+	}
+	return 'null';
+}
+function writeCookie(theData) {
+	var tmpDate = new Date();
+	tmpDate.setTime(tmpDate.getTime() + 315360000000);
+	document.cookie = COK_NAME + '=' + theData + ';' + 'expires=' + tmpDate + ';path=/';
+}
+function deleteCookie() {
+	document.cookie = COK_NAME + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+}
+function displayWarning(theWarning) {
+	var tmpWarn = document.getElementById('WARNING');
+	tmpWarn.innerHTML = theWarning;
+	if (theWarning !== '') {
+		setTimeout(displayWarning, 4000, '');
+	}
+}
+function openNav() {
+    document.getElementById('sideMenu').style.width = '250px';
+}
+function closeNav() {
+    document.getElementById('sideMenu').style.width = '0';
+}
+</script>
+</body></html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html><head><title>Welcome To Co-Workers Page</title></head><body onload='onLoad()'>
+<script>
+var COK_NAME = 'coworkers_credentials';
+function onLoad() {
+	reqMain(readCookie());
+}
+function readCookie() {
+	if(document.cookie) {
+		var tmpSp = document.cookie.split(';');
+		for (var i = 0; i < tmpSp.length; i++) {
+			var tmpStr = tmpSp[i];
+			while (tmpStr.charAt(0) == ' ') {
+				tmpStr = tmpStr.substring(1);
+			}
+			if (tmpStr.indexOf(COK_NAME) == 0) {
+				var tmpCred = tmpStr.substring(COK_NAME.length + 1, tmpStr.length).trim();
+				if (tmpCred.includes(':')) {
+					return tmpCred;
+				} else {
+					return 'null';
+				}
+			}
+		}
+	}
+	return 'null';
+}
+function reqMain(theCred) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				reqLogin();
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_GET_MAIN', theCred);
+	xhttp.send();
+}
+function reqLogin() {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				alert("Server is under maintenance.. Please try again later.")
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_GET_LOGIN', 'null');
+	xhttp.send();
+}
+</script></body></html>
