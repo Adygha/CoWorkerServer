@@ -7,9 +7,9 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-
 import javax.xml.bind.JAXBException;
 
+import model.User.UserType;
 import model.data_access.IDao;
 
 /**
@@ -30,12 +30,21 @@ public class RawResponse {
 	public RawResponse(RawRequest theRequest, IDao theDao, IModelObserver theObserver) {
 		this.meDao = theDao;
 		this.meObserver = theObserver;
+		User tmpUser = null;
 		try {
 			this.meXmlBld = new XmlBuilder();
 			if (this.meObserver.requestCheckPaused()) { // Check if server is in maintenance (paused) mode
 				this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Server is under maintenance. Please try again later.");
 			} else {
-				this.meIsCredOk = this.meDao.checkCredentials(theRequest.getUserName(), theRequest.getSha1Pass());
+				try {
+					this.meIsCredOk = this.meDao.checkCredentials(theRequest.getUserEmail(), theRequest.getSha1Pass());
+					if (this.meIsCredOk)
+						tmpUser = this.meDao.getUser(theRequest.getUserEmail());
+				} catch (SQLException e2) {
+					this.meObserver.requestPrintErrWarn("Cannot get user data." , false);
+					this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Cannot get user data. Please try again later.");
+					return;
+				}
 				switch (theRequest.getType()) {
 					case GET:
 						switch (theRequest.getTarget()) {
@@ -44,7 +53,22 @@ public class RawResponse {
 								break;
 							case MAIN:
 								if (this.meIsCredOk) {
-									this.meData = this.meXmlBld.buildMainPage(this.meDao.getAllGoalGroups());
+									switch (tmpUser.getUserType()) {
+										case SUPER:
+											this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
+											break;
+										case ADMIN:
+										case COWORKER:
+										try {
+											this.meData = this.meXmlBld.buildMainPage(this.meDao.getAllGoalGroups(true));
+										} catch (SQLException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+											break;
+										case NEW:
+											this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
+									}
 								} else {
 									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Credentials are not correct. Access denied.");
 								}
@@ -58,16 +82,26 @@ public class RawResponse {
 								break;
 							case GOAL:
 								if (this.meIsCredOk) {
-									this.meData = this.meXmlBld.buildGoalPage();
+									this.meData = this.meXmlBld.buildGoalPage(this.meDao.getGoal(theRequest.getPayloadData()), tmpUser.getUserType() == UserType.ADMIN);
 								} else {
 									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Credentials are not correct. Access denied.");
 								}
 								break;
 							case GOALEDIT:
+								if (this.meIsCredOk && tmpUser.getUserType() == UserType.ADMIN) {
+									this.meData = this.meXmlBld.buildGoalEditPage(this.meDao.getGoal(theRequest.getPayloadData()));
+								} else {
+									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Only admins can edit goals.");
+								}
+								break;
+							case SUPERPAGE:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
 							case USER:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
 							case REGISTER:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
 							case SHA1:
 								try {
@@ -81,47 +115,52 @@ public class RawResponse {
 					case CREATE:
 						switch (theRequest.getTarget()) {
 							case CHAT:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
 							case GOAL:
 								break;
 							default: //case USER:// Only 'USER' will be in this case (the others are filtered in the request)
 								String[] tmpArr = theRequest.getPayloadData().split("\n", 4);
-							try {
-								this.meDao.addUser(new User(tmpArr[0], tmpArr[1], tmpArr[2], tmpArr[3]));
-								this.meData = this.meXmlBld.buildLoginPage();
-							} catch (SQLException e) {
-								if (e.getErrorCode() == 30000 && e.getSQLState().equals("23505")) {
-									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
-											"Cannot add user. Email already exist. Please try again.");
-								} else if (e.getErrorCode() == 30000 && e.getSQLState().equals("23503")) {
-									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
-											"Cannot add user. The provided office does not exist. Please try again.");
-								} else {
-									this.meObserver.requestPrintErrWarn("Error adding user to database", false);
-									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
-											"Error adding user. Please contact support.");
+								try {
+									this.meDao.addUser(new User(tmpArr[0], tmpArr[1], tmpArr[2], tmpArr[3]));
+									this.meData = this.meXmlBld.buildLoginPage();
+								} catch (SQLException e) {
+									if (e.getErrorCode() == 30000 && e.getSQLState().equals("23505")) {
+										this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
+												"Cannot add user. Email already exist. Please try again.");
+									} else if (e.getErrorCode() == 30000 && e.getSQLState().equals("23503")) {
+										this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
+												"Cannot add user. The provided office does not exist. Please try again.");
+									} else {
+										this.meObserver.requestPrintErrWarn("Error adding user to database", false);
+										this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
+												"Error adding user. Please contact support.");
+									}
 								}
-							}
 						}
 						break;
 					case UPDATE:
 						switch (theRequest.getTarget()) {
 							case CHAT:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
 							case GOAL:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
-							case USER:
 							default: //case USER:// Only 'USER' will be in this case (the others are filtered in the request)
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 						}
 						break;
 					case DELETE:
 						switch (theRequest.getTarget()) {
 							case CHAT:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
 							case GOAL:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 								break;
-							case USER:
 							default: //case USER:// Only 'USER' will be in this case (the others are filtered in the request)
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
 						}
 						break;
 					case BAD:

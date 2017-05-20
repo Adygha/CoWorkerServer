@@ -27,6 +27,7 @@ public class RawRequest {
 		CHAT,
 		GOAL,
 		GOALEDIT,
+		SUPERPAGE,
 		USER,
 		REGISTER,
 		SHA1
@@ -37,7 +38,7 @@ public class RawRequest {
 	//private boolean meIsCredOk;
 	private RawRequestType meType;
 	private RawRequestTarget meTarget;
-	private String meUserName;
+	private String meEmail;
 	private String meSha1Pass;
 	private String mePayload;
 
@@ -47,10 +48,10 @@ public class RawRequest {
 		String[] tmpCred = tmpArr[1].split(":", 2);
 		String[] tmpType = tmpArr[0].split("_");
 		if (tmpCred.length == 2) {
-			this.meUserName = tmpCred[0].startsWith("/") ? tmpCred[0].substring(1) : tmpCred[0];
+			this.meEmail = tmpCred[0].startsWith("/") ? tmpCred[0].substring(1) : tmpCred[0];
 			this.meSha1Pass = tmpCred[1];
 		} else {
-			this.meUserName = "null";
+			this.meEmail = "null";
 			this.meSha1Pass = "null";
 		}
 		switch (tmpType[0]) {
@@ -139,7 +140,7 @@ public class RawRequest {
 	 * @return	the type of this raw request
 	 */
 	public RawRequestType getType() {
-		return meType;
+		return this.meType;
 	}
 
 	/**
@@ -147,15 +148,15 @@ public class RawRequest {
 	 * @return	the target of this raw request
 	 */
 	public RawRequestTarget getTarget() {
-		return meTarget;
+		return this.meTarget;
 	}
 
 	/**
 	 * Returns the requester's user-name.
 	 * @return	the requester's user-name
 	 */
-	public String getUserName() {
-		return meUserName;
+	public String getUserEmail() {
+		return this.meEmail;
 	}
 
 	/**
@@ -163,7 +164,7 @@ public class RawRequest {
 	 * @return	the requester's SHA-1 password
 	 */
 	public String getSha1Pass() {
-		return meSha1Pass;
+		return this.meSha1Pass;
 	}
 
 	/**
@@ -171,6 +172,6 @@ public class RawRequest {
 	 * @return	the request's payload data
 	 */
 	public String getPayloadData() {
-		return mePayload;
+		return this.mePayload;
 	}
 }

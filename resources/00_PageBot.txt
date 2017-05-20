@@ -34,11 +34,40 @@ function getMain() {
 function getChat() {
 	getPage('CHAT');
 }
-function getGoal() {
-	getPage('GOAL');
+function getGoal(theGoal) {
+	var tmpCred = readCookie();
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_GET_GOAL', tmpCred);
+	xhttp.send(theGoal);
 }
-function getGoalEdit() {
-	getPage('GOALEDIT');
+function getGoalEdit(theGoal) {
+	var tmpCred = readCookie();
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_GET_GOALEDIT', tmpCred);
+	xhttp.send(theGoal);
+}
+function getSuper() {
+	getPage('SUPERPAGE');
 }
 function getUserEdit() {
 	getPage('USER');

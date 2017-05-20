@@ -94,7 +94,9 @@ public class MyResponse {
 					case "CREDOK":
 						String tmpEmail = tmpNoSlash.substring(0, tmpNoSlash.indexOf(':'));
 						String tmpSha1Pass = tmpNoSlash.substring(tmpNoSlash.indexOf(':') + 1);
+					try {
 						this.meRespBytes = this.create200Ok(Boolean.toString(this.meDao.checkCredentials(tmpEmail, tmpSha1Pass)).getBytes());
+					} catch (SQLException e) {}
 						break;
 					default:
 						this.meRespBytes = this.create404NotFound();

@@ -7,7 +7,6 @@ import javax.xml.bind.JAXBException;
 
 /**
  * @author Janty Azmat
- *
  */
 class ViewRequestResposeFactory {
 	// A private enum to specify the type of the transaction

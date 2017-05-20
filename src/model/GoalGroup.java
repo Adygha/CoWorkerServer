@@ -16,7 +16,7 @@ public class GoalGroup {
 	private String meUUID;
 	private List<Goal> meGoals;
 
-	public GoalGroup(String groupName, String groupUUID) {
+	public GoalGroup(String groupUUID, String groupName) {
 		this.meName = groupName;
 		this.meUUID = groupUUID;
 		this.meGoals = new LinkedList<Goal>();

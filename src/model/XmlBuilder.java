@@ -4,6 +4,7 @@
 package model;
 
 import java.io.StringWriter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.LinkedList;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -28,34 +29,6 @@ public class XmlBuilder {
 	private static final String me_EMAIL_TXTBOX_ID = "txtBoxEmail";
 	private static final String me_PASS_TXTBOX_ID = "txtBoxPass";
 
-//	// A wrapper class fo a list for XML purposes
-//	@XmlAccessorType(XmlAccessType.NONE)
-//	private static class ListWrapper {
-//		// Fields
-//		@XmlElements({
-//			@XmlElement(name="LabledTextBox", type=LabledTextBox.class),
-//			@XmlElement(name="Group", type=Group.class),
-//			@XmlElement(name="SideMenu", type=SideMenu.class),
-//			@XmlElement(name="Button", type=Button.class),
-//			@XmlElement(name="Link", type=Link.class),
-//			@XmlElement(name="Link", type=Link.class)
-//		})
-//		private List<PageElement> meList;
-//
-//		// Constructor
-//		public ListWrapper() {
-//			this.meList = new LinkedList<PageElement>();
-//		}
-//
-//		/**
-//		 * Returns the inside List of elements.
-//		 * @return	the inside List
-//		 */
-//		public List<PageElement> getInsideList() {
-//			return this.meList;
-//		}
-//	}
-
 	@XmlAccessorType(XmlAccessType.NONE)
 	private static abstract class PageElement {
 		// Fields
@@ -66,14 +39,6 @@ public class XmlBuilder {
 		public PageElement(String theTitle) {
 			this.meTitle = theTitle;
 		}
-
-//		/**
-//		 * Returns this element's title.
-//		 * @return	the element's title
-//		 */
-//		public String getTitle() {
-//			return this.meTitle;
-//		}
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
@@ -87,14 +52,6 @@ public class XmlBuilder {
 			super(theTitle);
 			this.meCommand = theCommand;
 		}
-
-//		/**
-//		 * Returns the link's target.
-//		 * @return	the link's target
-//		 */
-//		public String getCommand() {
-//			return this.meCommand;
-//		}
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
@@ -102,47 +59,54 @@ public class XmlBuilder {
 		// Fields
 		@XmlElement(name="Command")
 		private String meCommand;
+		@XmlElement(name="CommandParam")
+		private String meCommParam;
 
 		// Constructor
-		public Button(String theTitle, String theCommand) {
+		public Button(String theTitle, String theCommand, String commandParam) {
 			super(theTitle);
 			this.meCommand = theCommand;
+			this.meCommParam = commandParam;
 		}
-
-//		/**
-//		 * Returns the link's target.
-//		 * @return	the link's target
-//		 */
-//		public String getCommand() {
-//			return this.meCommand;
-//		}
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
 	private static class XmlGoal extends PageElement {
-
-		@XmlElement(name="Decription")
-		private String meDesc;
+		// Fields
 		@XmlElement(name="Percentage")
 		private int mePer;
 		@XmlElement(name="Command")
 		private String meCommand;
+//		@XmlElement(name="Description")
+//		private String meDecr;
+		@XmlElement(name="IsPage")
+		private boolean meIsPage;
+//		@XmlElement(name="GroupUUID")
+//		private String meGroupUUID;
 
-		public XmlGoal(String goalName, String goalDecription, int goalPercentage,  String theCommand) {
+		// Constructor as main page goal
+		public XmlGoal(String goalName, int goalPercentage,  String theCommand) {
 			super(goalName);
-			this.meDesc = goalDecription;
+			//this.meIsPage = false;
 			this.mePer = goalPercentage;
 			this.meCommand = theCommand;
+		}
+
+		// Constructor for edit goal page percentage
+		public XmlGoal(String goalName, int goalPercentage) {
+			super(goalName);
+			this.meIsPage = true;
+			this.mePer = goalPercentage;
 		}
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
 	private static class Group extends PageElement {
 		// Fields
-		//@XmlElement(name="Elements")
-		//private ListWrapper meElems;
 		@XmlElements({
 			@XmlElement(name="LabledTextBox", type=LabledTextBox.class),
+			@XmlElement(name="LabledTextValue", type=LabledTextValue.class),
+			@XmlElement(name="DropBox", type=DropBox.class),
 			@XmlElement(name="Group", type=Group.class),
 			@XmlElement(name="SideMenu", type=SideMenu.class),
 			@XmlElement(name="Button", type=Button.class),
@@ -162,7 +126,7 @@ public class XmlBuilder {
 		public Group(GoalGroup theGoalGroup) {
 			super(theGoalGroup.getName());
 			this.meElems = new LinkedList<PageElement>();
-			theGoalGroup.getGoals().stream().forEach(g -> this.meElems.add(new XmlGoal(g.getName(), g.getDescription(), g.getPercentage(), "GET_GOAL")));
+			theGoalGroup.getGoals().stream().forEach(g -> this.meElems.add(new XmlGoal(g.getName(), g.getPercentage(), g.getUUID())));
 		}
 
 		/**
@@ -195,14 +159,32 @@ public class XmlBuilder {
 			this.meBoxType = boxType;
 			this.meID = boxID;
 		}
+	}
 
-//		/**
-//		 * Returns the LabledTextBox's initial text.
-//		 * @return	the initial text
-//		 */
-//		public String getInitialText() {
-//			return this.meID;
-//		}
+	@XmlAccessorType(XmlAccessType.NONE)
+	private static class LabledTextValue extends PageElement {
+		// Fields
+		@XmlElement(name="TextValueType")
+		private String meTxt;
+
+		// Constructor
+		public LabledTextValue(String theTitle, String theText) {
+			super(theTitle);
+			this.meTxt = theText;
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.NONE)
+	private static class DropBox extends PageElement {
+		// Fields
+		@XmlElement(name="DropValues")
+		private List<SimpleEntry<String, String>> meVals;
+
+		// Constructor
+		public DropBox(String defaultValue, List<SimpleEntry<String, String>> dropValues) {
+			super(defaultValue);
+			this.meVals = dropValues;
+		}
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
@@ -225,20 +207,13 @@ public class XmlBuilder {
 		public void addLink(Link theLink) {
 			this.meLinks.addFirst(theLink);
 		}
-
-//		/**
-//		 * This method is for XML purpose only, and returns the inside links.
-//		 * @return	the inside links
-//		 */
-//		public List<Link> getInsideList() {
-//			return this.meLinks;
-//		}
 	}
 
 	// Fields
-	//@XmlElement//(name = "PageElement")
 	@XmlElements({
 		@XmlElement(name="LabledTextBox", type=LabledTextBox.class),
+		@XmlElement(name="LabledTextValue", type=LabledTextValue.class),
+		@XmlElement(name="DropBox", type=DropBox.class),
 		@XmlElement(name="Group", type=Group.class),
 		@XmlElement(name="SideMenu", type=SideMenu.class),
 		@XmlElement(name="Button", type=Button.class),
@@ -269,30 +244,44 @@ public class XmlBuilder {
 		Group tmpGrp = new Group("Valid Credentials Needed");
 		tmpGrp.addElement(new LabledTextBox("Login Email", LabledTextBox.TextBoxType.EMAIL, XmlBuilder.me_EMAIL_TXTBOX_ID));
 		tmpGrp.addElement(new LabledTextBox("Login Password", LabledTextBox.TextBoxType.PASSWORD, XmlBuilder.me_PASS_TXTBOX_ID));
-		tmpGrp.addElement(new Button("Login", "GET_SHA1"));
+		tmpGrp.addElement(new Button("Login", "GET_SHA1", null));
 		this.mePage.add(tmpGrp);
 		return this.createXml();
 	}
 
 	public String buildChatPage() throws JAXBException {
 		SideMenu tmpMenu = new SideMenu();
-		tmpMenu.addLink(new Link("Main Manu", "GET_MAIN"));
+		tmpMenu.addLink(new Link("Main Page", "GET_MAIN"));
 		this.mePage.add(tmpMenu);
+		// TODO: Add other page parts
 		return this.createXml();
 	}
 
-	public String buildGoalPage() throws JAXBException {
+	public String buildGoalPage(Goal theGoal, boolean isAdmin) throws JAXBException {
 		SideMenu tmpMenu = new SideMenu();
+		Group tmpGrp = new Group("Goal Page");
 		tmpMenu.addLink(new Link("Chat", "GET_CHAT"));
-		tmpMenu.addLink(new Link("Main Manu", "GET_MAIN"));
+		tmpMenu.addLink(new Link("Main Page", "GET_MAIN"));
 		this.mePage.add(tmpMenu);
-		// TODO: Add other page parts
+		tmpGrp.addElement(new Button("Back To Main Page", "GET_MAIN", null));
+		if (isAdmin)
+			tmpGrp.addElement(new Button("Edit Goal", "GET_GOALEDIT", theGoal.getUUID()));
+		tmpGrp.addElement(new LabledTextValue("Goal Name:", theGoal.getName()));
+		tmpGrp.addElement(new LabledTextValue("Goal Description:", theGoal.getDescription()));
+		tmpGrp.addElement(new LabledTextValue("Goal Group:", theGoal.getGroupUUID()));
+		tmpGrp.addElement(new XmlGoal(theGoal.getName(), theGoal.getPercentage()));
+		this.mePage.add(tmpGrp);
 		return this.createXml();
 	}
 
-	public String buildGoalEditPage() throws JAXBException {
-		this.mePage.add(new SideMenu());
-		// TODO: Add other page parts
+	public String buildGoalEditPage(Goal theGoal) throws JAXBException {
+		SideMenu tmpMenu = new SideMenu();
+		Group tmpGrp = new Group("Goal Page");
+		tmpMenu.addLink(new Link("Chat", "GET_CHAT"));
+		tmpMenu.addLink(new Link("Main Page", "GET_MAIN"));
+		this.mePage.add(tmpMenu);
+		tmpGrp.addElement(new Button("Cancel Editing Goal", "GET_GOAL", theGoal.getUUID()));
+		this.mePage.add(tmpGrp);
 		return this.createXml();
 	}
 

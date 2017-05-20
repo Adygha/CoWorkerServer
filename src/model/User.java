@@ -49,11 +49,15 @@ public class User {
 //	}
 
 	public User(String fullName, String eMail, String sha1PassWord, String officeUUID) {
+		this(fullName, eMail, sha1PassWord, UserType.NEW, officeUUID);
+	}
+
+	public User(String fullName, String eMail, String sha1PassWord, UserType theType, String officeUUID) {
 		this.meName = fullName;
 		this.meEmail = eMail;
 		this.meSha1Pass = sha1PassWord;
 		this.meOfficeUUID = officeUUID;
-		this.meType = UserType.NEW;
+		this.meType = theType;
 	}
 
 	/**
@@ -133,7 +137,7 @@ public class User {
 	 * @return the type of this user object
 	 */
 	public UserType getUserType() {
-		return meType;
+		return this.meType;
 	}
 
 //	/**

@@ -13,15 +13,25 @@ public class Goal {
 	private String meUUID;
 	private String meName;
 	private String meDesc;
-	private String meCatUUID;
+	private String meGroupUUID;
 	private int mePcent;
 	//private LinkedList<Comment> meCmnts;
 
-	public Goal(String goalName, String goalDecription, int goalPercentage, String categoryUUID) {
+	// Constructor for newly created goal
+	public Goal(String goalName, String goalDescription, int goalPercentage, String groupUUID) {
 		this.meUUID = UUID.randomUUID().toString();
 		this.meName = goalName;
-		this.meDesc = goalDecription;
-		this.meCatUUID = categoryUUID;
+		this.meDesc = goalDescription;
+		this.meGroupUUID = groupUUID;
+		this.mePcent = goalPercentage;
+	}
+
+	// Constructor for a goal that we already know the ID
+	public Goal(String goalUUID, String goalName, String goalDescription, int goalPercentage, String groupUUID) {
+		this.meUUID = goalUUID;
+		this.meName = goalName;
+		this.meDesc = goalDescription;
+		this.meGroupUUID = groupUUID;
 		this.mePcent = goalPercentage;
 	}
 
@@ -46,7 +56,7 @@ public class Goal {
 	 * @return	the goal category's UUID
 	 */
 	public String getGroupUUID() {
-		return meCatUUID;
+		return meGroupUUID;
 	}
 
 	/**
