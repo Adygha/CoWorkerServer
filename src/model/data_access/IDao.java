@@ -4,9 +4,8 @@
 package model.data_access;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.AbstractMap.SimpleEntry;
-
+import java.util.List;
 import model.Goal;
 import model.GoalGroup;
 import model.User;
@@ -17,19 +16,24 @@ import model.User;
  */
 public interface IDao extends AutoCloseable {
 
+	void close() throws SQLException; // Added here to restrict to only SQLException
 	boolean checkCredentials(String theEmail, String sha1Password) throws SQLException;
+	List<GoalGroup> getGoalGroup(boolean isWithGoals) throws SQLException;
+	GoalGroup getGoalGroup(String goalUUID) throws SQLException;
+	void addGoalGroup(GoalGroup theGroup) throws SQLException;
+	void updateGoalGroup(GoalGroup updatedGroup) throws SQLException;
+	void deleteGoalGroup(String groupUUID) throws SQLException;
+	List<SimpleEntry<String, String>> getOffice() throws SQLException;
 	void addOffice(SimpleEntry<String, String> newOffice) throws SQLException;
 	void updateOffice(SimpleEntry<String, String> updatedOffice) throws SQLException;
 	void deleteOffice(String officeUUID) throws SQLException;
-	Goal getGoal(String goalUUID);
-	void addGoal(String goalUUID, String goalName, String goalDecription, int goalPercentage, String groupUUID);
-	void updateGoal(Goal updatedGoal);
-	void deleteGoal(String goalUUID);
-	User getUser(String eMail) throws SQLException;
+	Goal getGoal(String goalUUID) throws SQLException;
+	void addGoal(Goal newGoal) throws SQLException;
+	void updateGoal(Goal updatedGoal) throws SQLException;
+	void deleteGoal(String goalUUID) throws SQLException;
+	List<User> getUser() throws SQLException;
+	User getUser(String byKey, boolean isKeyEmail) throws SQLException;
 	void addUser(User newUser) throws SQLException;
-	boolean updateUser(User updatedUser);
-	boolean deleteUser(String userUUID);
-	void close() throws SQLException;
-
-	public List<GoalGroup> getAllGoalGroups(boolean isWithGoals) throws SQLException;
+	void updateUser(User updatedUser) throws SQLException;
+	void deleteUser(String userUUID) throws SQLException;
 }

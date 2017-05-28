@@ -3,6 +3,8 @@
  */
 package model;
 
+import java.util.UUID;
+
 /**
  * A class that represents a user of the application.
  * @author Janty Azmat
@@ -37,114 +39,74 @@ public class User {
 	}
 
 	// Fields
-	private String meName;
+	private String meUUID;
 	private String meEmail;
 	private String meSha1Pass;
+	private String meName;
 	private UserType meType;
-	//private SimpleEntry<String, String> meOffice;
 	private String meOfficeUUID;
 
-//	public User(String fullName, String eMail, String sha1PassWord, SimpleEntry<String, String> theOffice) {
-//		this(fullName, eMail, sha1PassWord, theOffice.getKey());
-//	}
-
-	public User(String fullName, String eMail, String sha1PassWord, String officeUUID) {
-		this(fullName, eMail, sha1PassWord, UserType.NEW, officeUUID);
+	// Constructor (automates UUID and assigns the NEW type for creating new users)
+	public User(String eMail, String sha1PassWord, String fullName, String officeUUID) {
+		this(UUID.randomUUID().toString(), eMail, sha1PassWord, fullName, UserType.NEW, officeUUID);
 	}
 
-	public User(String fullName, String eMail, String sha1PassWord, UserType theType, String officeUUID) {
-		this.meName = fullName;
+	// Constructor (for creating users already exist in database)
+	public User(String theUUID, String eMail, String sha1PassWord, String fullName, UserType theType, String officeUUID) {
+		this.meUUID = theUUID;
 		this.meEmail = eMail;
 		this.meSha1Pass = sha1PassWord;
-		this.meOfficeUUID = officeUUID;
+		this.meName = fullName;
 		this.meType = theType;
+		this.meOfficeUUID = officeUUID;
+	}
+
+
+	/**
+	 * Returns the UUID for this user object.
+	 * @return	the UUID for this user object
+	 */
+	public String getUUID() {
+		return this.meUUID;
+	}
+
+	/**
+	 * Returns the email for this user object.
+	 * @return	the email for this user object
+	 */
+	public String getEmail() {
+		return this.meEmail;
 	}
 
 	/**
 	 * Returns the new full name for this user object.
-	 * @return the full name for this user object
+	 * @return	the full name for this user object
 	 */
 	public String getFullName() {
-		return meName;
+		return this.meName;
 	}
-
-//	/**
-//	 * Sets the new full name for this user object.
-//	 * @param fullName	the new full name
-//	 */
-//	public void setFullName(String fullName) {
-//		this.meName = fullName;
-//	}
-
-	/**
-	 * Returns the email for this user object.
-	 * @return the email for this user object
-	 */
-	public String getEmail() {
-		return meEmail;
-	}
-
-//	/**
-//	 * Sets the new email for this user object.
-//	 * @param eMail	the new email for this user object
-//	 */
-//	public void setEmail(String eMail) {
-//		this.meEmail = eMail;
-//	}
 
 	/**
 	 * Returns the SHA1 password for this user object.
 	 * @return	the SHA1 password for this user object
 	 */
 	public String getSha1Passwrod() {
-		return meSha1Pass;
+		return this.meSha1Pass;
 	}
-
-//	/**
-//	 * Sets the new SHA1 password for this user object.
-//	 * @param sha1Pass	the new SHA1 password
-//	 */
-//	public void setSha1Passwrod(String sha1Pass) {
-//		this.meSha1Pass = sha1Pass;
-//	}
-
-//	/**
-//	 * Returns the office this user object belongs to.
-//	 * @return	the office this user object belongs to
-//	 */
-//	public SimpleEntry<String, String> getOffice() {
-//		return meOffice;
-//	}
 
 	/**
 	 * Returns the office this user object belongs to.
 	 * @return	the office this user object belongs to
 	 */
 	public String getOfficeUUID() {
-		return meOfficeUUID;
+		return this.meOfficeUUID;
 	}
-
-//	/**
-//	 * Sets the new office this user object belongs to.
-//	 * @param theOffice	the new office
-//	 */
-//	public void setOffice(Entry<String, String> theOffice) {
-//		this.meOffice = theOffice;
-//	}
 
 	/**
 	 * Returns the type of this user object.
-	 * @return the type of this user object
+	 * @return	the type of this user object
 	 */
 	public UserType getUserType() {
 		return this.meType;
 	}
-
-//	/**
-//	 * Sets the type of this user object.
-//	 * @param userType	the new type
-//	 */
-//	public void setUserType(UserType userType) {
-//		this.meType = userType;
-//	}
 }

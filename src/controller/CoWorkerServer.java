@@ -14,7 +14,7 @@ import view.ViewSecureConnection;
 /**
  * @author Janty Azmat
  */
-class CoWorkerServer implements IViewObserver, IModelObserver { // No modifier (inside package only)
+public class CoWorkerServer implements IViewObserver, IModelObserver { // No modifier (inside package only)
 	// Fields
 	private ViewConsole meConsole;
 	private ViewSecureConnection meConn;

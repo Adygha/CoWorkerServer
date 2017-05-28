@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html><head><title>Welcome To Co-Workers Page</title></head><body onload='onLoad()'>
+﻿<!DOCTYPE html>
+<html><head><meta charset="utf-8" /><title>Welcome To Co-Workers Page</title></head><body onload='onLoad()'>
 <script>
 var COK_NAME = 'coworkers_credentials';
 function onLoad() {

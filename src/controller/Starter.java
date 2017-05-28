@@ -4,7 +4,6 @@
 package controller;
 
 import java.sql.SQLException;
-
 import model.data_access.DerbyDao;
 import model.data_access.IDao;
 
@@ -24,22 +23,5 @@ public class Starter {
 				System.err.println("Error creating, opening, or closing database.");
 			}
 		}
-
-//		try {
-//			XmlPageBuilder bld = new XmlPageBuilder();
-//			System.out.println(bld.buildLoginPage());
-//			System.out.println(bld.buildMainPage());
-//		} catch (JAXBException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-
-//		DerbyDao ddd = null;
-//		try {
-//			ddd = new DerbyDao();
-//		} catch (SQLException e) {e.printStackTrace();};
-//		//ddd.backupDataBase();
-//		ddd.close();
 	}
 }

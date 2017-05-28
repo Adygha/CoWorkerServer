@@ -14,8 +14,10 @@ import java.time.LocalDateTime;
  * @author Janty Azmat
  */
 public class ViewConsole {
-	// Fields
+	// Constants
 	private static final String me_LOG_FILE = "ServerLog.txt";
+	private static final boolean me_PRINT_TO_CONSOLE = true; // To specify if we want to print to console too or just log file
+	// Fields
 	private IViewObserver meObserver;
 
 	public ViewConsole(IViewObserver theObserver) {
@@ -52,7 +54,8 @@ public class ViewConsole {
 		// might happen when correcting.;
 		String tmpStr = (terminateExecution ? "Error:\n" : "Warning:\n") + errWarningMsg;
 		this.writeLog(tmpStr);
-		System.err.println(tmpStr);
+		if (me_PRINT_TO_CONSOLE)
+			System.err.println(tmpStr);
 		if (terminateExecution)
 			System.exit(-1);
 	}
@@ -63,7 +66,8 @@ public class ViewConsole {
 	 */
 	public void printLogMessage(String theMsg) {
 		this.writeLog(theMsg);
-		System.out.println(theMsg);
+		if (me_PRINT_TO_CONSOLE)
+			System.out.println(theMsg);
 	}
 
 	// A method to write to just write to log file
@@ -74,7 +78,8 @@ public class ViewConsole {
 			tmpLog.write("\r\n" + LocalDateTime.now() + " : " + theLog);
 			tmpLog.close();
 		} catch (IOException e) {
-			System.err.println("Error: Cannot handle writing to Log file. Exiting");
+			if (me_PRINT_TO_CONSOLE)
+				System.err.println("Error: Cannot handle writing to Log file. Exiting");
 			System.exit(-1);
 		}
 	}

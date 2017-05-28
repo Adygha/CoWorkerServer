@@ -5,7 +5,6 @@ package view;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.AbstractMap.SimpleEntry;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -23,12 +22,23 @@ class ViewXmlHtmlParser {
 	private static final String me_GET_CHAT_FUNC = "getChat()";
 	private static final String me_GET_GOAL_FUNC = "getGoal(\"";
 	private static final String me_GET_GOALEDIT_FUNC = "getGoalEdit(\"";
-	private static final String me_GET_SUPERPAGE_FUNC = "getSuper()";
-	private static final String me_GET_USEREDIT_FUNC = "getUserEdit()";
-	private static final String me_GET_REGISTER_FUNC = "getRegister()";
-	private static final String me_GET_SHA1_FUNC = "saveCred()";
-	//private static final String me_EMAIL_TXTBOX_ID = "txtBoxEmail";
-	//private static final String me_PASS_TXTBOX_ID = "txtBoxPass";
+	//private static final String me_GET_SUPERPAGE_FUNC = "getSuper()";
+	private static final String me_GET_USER_FUNC = "getUser(\"";
+	//private static final String me_GET_REGISTER_FUNC = "getRegister()";
+	private static final String me_GET_GROUPOFFICE_FUNC = "getGroupOffice()";
+	private static final String me_GET_SHA1_FUNC = "saveCred(true)";
+	private static final String me_CREATE_USER_FUNC = "createUser()";
+	private static final String me_CREATE_GOAL_FUNC = "createUpdateGoal()";
+	private static final String me_CREATE_OFFICE_FUNC = "createOffice()";
+	private static final String me_CREATE_GROUP_FUNC = "createGroup()";
+	private static final String me_UPDATE_USER_FUNC = "updateUser(\"";
+	private static final String me_UPDATE_GOAL_FUNC = "createUpdateGoal(\"";
+	private static final String me_UPDATE_OFFICE_FUNC = "updateOffice()";
+	private static final String me_UPDATE_GROUP_FUNC = "updateGroup()";
+	private static final String me_DELETE_USER_FUNC = "deleteUser(\"";
+	private static final String me_DELETE_GOAL_FUNC = "deleteGoal(\"";
+	private static final String me_DELETE_OFFICE_FUNC = "deleteOffice()";
+	private static final String me_DELETE_GROUP_FUNC = "deleteGroup()";
 
 
 	@XmlAccessorType(XmlAccessType.NONE)
@@ -53,34 +63,39 @@ class ViewXmlHtmlParser {
 			outStr.append("<a href='javascript:");
 			switch (this.meCommand) {
 				case "GET_LOGIN":
-					outStr.append(ViewXmlHtmlParser.me_GET_LOGIN_FUNC);
+					outStr.append(me_GET_LOGIN_FUNC);
 					break;
 				case "GET_MAIN":
-					outStr.append(ViewXmlHtmlParser.me_GET_MAIN_FUNC);
+					outStr.append(me_GET_MAIN_FUNC);
 					break;
 				case "GET_CHAT":
-					outStr.append(ViewXmlHtmlParser.me_GET_CHAT_FUNC);
+					outStr.append(me_GET_CHAT_FUNC);
 					break;
 //				case "GET_GOAL":
-//					outStr.append(ViewXmlHtmlParser.me_GET_GOAL_FUNC);
+//					outStr.append(me_GET_GOAL_FUNC);
 //					break;
 				case "GET_GOALEDIT":
-					outStr.append(ViewXmlHtmlParser.me_GET_GOALEDIT_FUNC);
+					outStr.append(me_GET_GOALEDIT_FUNC);
+					outStr.append("\")");
 					break;
 				case "GET_USER":
-					outStr.append(ViewXmlHtmlParser.me_GET_USEREDIT_FUNC);
+					outStr.append(me_GET_USER_FUNC);
+					outStr.append("\")");
 					break;
-				case "GET_REGISTER":
-					outStr.append(ViewXmlHtmlParser.me_GET_REGISTER_FUNC);
+//				case "GET_REGISTER":
+//					outStr.append(me_GET_REGISTER_FUNC);
+//					break;
+				case "GET_GROUPOFFICE":
+					outStr.append(me_GET_GROUPOFFICE_FUNC);
 					break;
-				case "GET_SHA1":
-					outStr.append(ViewXmlHtmlParser.me_GET_SHA1_FUNC);
-					break;
+//				case "GET_SHA1":
+//					outStr.append(me_GET_SHA1_FUNC);
+//					break;
 				default:
-					outStr.append(this.meCommand);
+					outStr.append(this.meCommand); // TODO: Better remove
 			}
 			outStr.append("'>");
-			outStr.append(super.meTitle.replace(" ", "&nbsp"));
+			outStr.append(super.meTitle.replace(" ", "&nbsp")); // Just to avoid linebreaks in links
 			outStr.append("</a>");
 			return outStr.toString();
 		}
@@ -100,38 +115,86 @@ class ViewXmlHtmlParser {
 			outStr.append("<br /><button type='button' class='generalButton' onclick='");
 			switch (this.meCommand) {
 				case "GET_LOGIN":
-					outStr.append(ViewXmlHtmlParser.me_GET_LOGIN_FUNC);
+					outStr.append(me_GET_LOGIN_FUNC);
 					break;
 				case "GET_MAIN":
-					outStr.append(ViewXmlHtmlParser.me_GET_MAIN_FUNC);
+					outStr.append(me_GET_MAIN_FUNC);
 					break;
 				case "GET_CHAT":
-					outStr.append(ViewXmlHtmlParser.me_GET_CHAT_FUNC);
+					outStr.append(me_GET_CHAT_FUNC);
 					break;
 				case "GET_GOAL":
-					outStr.append(ViewXmlHtmlParser.me_GET_GOAL_FUNC);
+					outStr.append(me_GET_GOAL_FUNC);
 					outStr.append(this.meCommParam);
 					outStr.append("\")");
 					break;
 				case "GET_GOALEDIT":
-					outStr.append(ViewXmlHtmlParser.me_GET_GOALEDIT_FUNC);
+					outStr.append(me_GET_GOALEDIT_FUNC);
 					outStr.append(this.meCommParam);
 					outStr.append("\")");
 					break;
-				case "GET_SUPERPAGE":
-					outStr.append(ViewXmlHtmlParser.me_GET_SUPERPAGE_FUNC);
-					break;
+//				case "GET_SUPERPAGE":
+//					outStr.append(me_GET_SUPERPAGE_FUNC);
+//					break;
 				case "GET_USER":
-					outStr.append(ViewXmlHtmlParser.me_GET_USEREDIT_FUNC);
+					outStr.append(me_GET_USER_FUNC);
+					outStr.append("\")");
 					break;
-				case "GET_REGISTER":
-					outStr.append(ViewXmlHtmlParser.me_GET_REGISTER_FUNC);
+//				case "GET_REGISTER":
+//					outStr.append(me_GET_REGISTER_FUNC);
+//					break;
+				case "GET_GROUPOFFICE":
+					outStr.append(me_GET_GROUPOFFICE_FUNC);
 					break;
 				case "GET_SHA1":
-					outStr.append(ViewXmlHtmlParser.me_GET_SHA1_FUNC);
+					outStr.append(me_GET_SHA1_FUNC);
+					break;
+				case "CREATE_USER":
+					outStr.append(me_CREATE_USER_FUNC);
+					break;
+				case "CREATE_GOAL":
+					outStr.append(me_CREATE_GOAL_FUNC);
+					break;
+				case "CREATE_OFFICE":
+					outStr.append(me_CREATE_OFFICE_FUNC);
+					break;
+				case "CREATE_GROUP":
+					outStr.append(me_CREATE_GROUP_FUNC);
+					break;
+				case "UPDATE_USER":
+					outStr.append(me_UPDATE_USER_FUNC);
+					outStr.append(this.meCommParam);
+					outStr.append("\")");
+					break;
+				case "UPDATE_GOAL":
+					outStr.append(me_UPDATE_GOAL_FUNC);
+					outStr.append(this.meCommParam);
+					outStr.append("\")");
+					break;
+				case "UPDATE_OFFICE":
+					outStr.append(me_UPDATE_OFFICE_FUNC);
+					break;
+				case "UPDATE_GROUP":
+					outStr.append(me_UPDATE_GROUP_FUNC);
+					break;
+				case "DELETE_USER":
+					outStr.append(me_DELETE_USER_FUNC);
+					outStr.append(this.meCommParam);
+					outStr.append("\")");
+					break;
+				case "DELETE_GOAL":
+					outStr.append(me_DELETE_GOAL_FUNC);
+					outStr.append(this.meCommParam);
+					outStr.append("\")");
+					break;
+				case "DELETE_OFFICE":
+					outStr.append(me_DELETE_OFFICE_FUNC);
+					break;
+				case "DELETE_GROUP":
+					outStr.append(me_DELETE_GROUP_FUNC);
 					break;
 				default:
-					outStr.append(this.meCommand);
+					outStr.append(this.meCommand); // TODO: Better remove
 			}
 			outStr.append("'>");
 			outStr.append(super.meTitle);
@@ -158,14 +221,14 @@ class ViewXmlHtmlParser {
 		public String getHtml() {
 			StringBuilder outStr = new StringBuilder(256);
 			if (this.meIsPage) {
-				outStr.append("<fieldset><legend>Percentage</legend><div class='progressBar'><span class='percentage'>");
+				outStr.append("<br /><fieldset><legend>Percentage</legend><div class='progressBar'><span class='percentage'>");
 				outStr.append(this.mePer);
 				outStr.append("%</span><div style='width: ");
 				outStr.append(mePer);
 				outStr.append("%;' class='progressBarIn'></div></fieldset>");
 			} else {
 				outStr.append("<br /><a href='javascript:");
-				outStr.append(ViewXmlHtmlParser.me_GET_GOAL_FUNC);
+				outStr.append(me_GET_GOAL_FUNC);
 				outStr.append(this.meCommand);
 				outStr.append("\")' style='text-decoration: none;'><fieldset class='progressLink'>");
 				outStr.append(super.meTitle);
@@ -180,18 +243,41 @@ class ViewXmlHtmlParser {
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
+	private static class XmlUser extends PageElement {
+		// Fields
+		@XmlElement(name="Email")
+		private String meEmail;
+
+		@Override
+		public String getHtml() {
+			StringBuilder outStr = new StringBuilder(256);
+			outStr.append("<br /><a href='javascript:");
+			outStr.append(me_GET_USER_FUNC);
+			outStr.append(this.meEmail);
+			outStr.append("\")' style='text-decoration: none;'><fieldset class='progressLink'><legend>");
+			outStr.append(super.meTitle);
+			outStr.append("</legend>");
+			outStr.append(this.meEmail);
+			outStr.append("</fieldset></a>");
+			return outStr.toString();
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.NONE)
 	private static class Group extends PageElement {
 		// Fields
 		@XmlElements({
 			@XmlElement(name="LabledTextBox", type=LabledTextBox.class),
+			@XmlElement(name="LabledTextArea", type=LabledTextArea.class),
 			@XmlElement(name="LabledTextValue", type=LabledTextValue.class),
-			@XmlElement(name="DropBox", type=DropBox.class),
+			@XmlElement(name="DropBox", type=LabledDropBox.class),
 			@XmlElement(name="Group", type=Group.class),
 			@XmlElement(name="SideMenu", type=SideMenu.class),
 			@XmlElement(name="Button", type=Button.class),
 			@XmlElement(name="Link", type=Link.class),
 			@XmlElement(name="Link", type=Link.class),
-			@XmlElement(name="XmlGoal", type=XmlGoal.class)
+			@XmlElement(name="XmlGoal", type=XmlGoal.class),
+			@XmlElement(name="XmlUser", type=XmlUser.class)
 		})
 		private List<PageElement> meElems;
 
@@ -216,17 +302,43 @@ class ViewXmlHtmlParser {
 		private String meID;
 		@XmlElement(name="TextBoxType")
 		private String meBoxType;
+		@XmlElement(name="CurrentText")
+		private String meCurTxt;
 
 		@Override
 		public String getHtml() {
 			StringBuilder outStr = new StringBuilder(64);
-			outStr.append("<br />");
+			outStr.append("<br /><fieldset><legend>");
 			outStr.append(super.meTitle);
-			outStr.append("<br /><input type='");
+			outStr.append("</legend><input type='");
 			outStr.append(this.meBoxType.toLowerCase());
+			outStr.append("' value='");
+			outStr.append(this.meCurTxt);
 			outStr.append("' id='");
 			outStr.append(this.meID);
-			outStr.append("' class='txtBox' /><br />");
+			outStr.append("' class='txtBox' /></fieldset>");
+			return outStr.toString();
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.NONE)
+	private static class LabledTextArea extends PageElement {
+		// Fields
+		@XmlElement(name="ID")
+		private String meID;
+		@XmlElement(name="CurrentText")
+		private String meCurTxt;
+
+		@Override
+		public String getHtml() {
+			StringBuilder outStr = new StringBuilder(64);
+			outStr.append("<br /><fieldset><legend>");
+			outStr.append(super.meTitle);
+			outStr.append("</legend><textarea id='");
+			outStr.append(this.meID);
+			outStr.append("' class='txtBox' style='resize: none; overflow-y: scroll;' overflow-y>");
+			outStr.append(this.meCurTxt);
+			outStr.append("</textarea></fieldset>");
 			return outStr.toString();
 		}
 	}
@@ -240,7 +352,7 @@ class ViewXmlHtmlParser {
 		@Override
 		public String getHtml() {
 			StringBuilder outStr = new StringBuilder(64);
-			outStr.append("<fieldset><legend>");
+			outStr.append("<br /><fieldset><legend>");
 			outStr.append(super.meTitle);
 			outStr.append("</legend>");
 			outStr.append(this.meTxt);
@@ -250,25 +362,49 @@ class ViewXmlHtmlParser {
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
-	private static class DropBox extends PageElement {
+	private static class LabledDropBox extends PageElement {
 		// Fields
 		@XmlElement(name="DropValues")
-		private List<SimpleEntry<String, String>> meVals;
+		private List<XmlEntry> meVals;
+		@XmlElement(name="SelectedValue")
+		private String meVal;
+		@XmlElement(name="ID")
+		private String meID;
+		@XmlElement(name="IsEditable")
+		private boolean meIsEditable;
 
 		@Override
 		public String getHtml() {
 			StringBuilder outStr = new StringBuilder(64);
 			if (this.meVals == null)
-				this.meVals = new LinkedList<SimpleEntry<String, String>>();
-			outStr.append("<select class='txtBox'>");
-			for (SimpleEntry<String, String> ent : this.meVals) {
+				this.meVals = new LinkedList<XmlEntry>();
+			outStr.append("<br /><fieldset><legend>");
+			outStr.append(super.meTitle);
+			if (this.meIsEditable) {
+				outStr.append("</legend><select onchange='this.nextElementSibling.value=this.options[this.selectedIndex].text;' id='");
+			} else {
+				outStr.append("</legend><select id='");
+			}
+			outStr.append(this.meID);
+			outStr.append("' class='txtBox'>");
+			for (XmlEntry ent : this.meVals) {
 				outStr.append("<option value='");
 				outStr.append(ent.getKey());
-				outStr.append("'>");
+				outStr.append(ent.getKey().equals(this.meVal) ? "' selected>" : "'>");
+				if (this.meIsEditable && ent.getKey().equals(this.meVal))
+					this.meVal = ent.getValue();
 				outStr.append(ent.getValue());
 				outStr.append("</option>");
 			}
-			outStr.append("</select><br />");
+			if (this.meIsEditable) {
+				outStr.append("</select><input type='text' class='txtBox' id='");
+				outStr.append(this.meID);
+				outStr.append("Text' value='");
+				outStr.append(this.meVal);
+				outStr.append("' /></fieldset>");
+			} else {
+				outStr.append("</select></fieldset>");
+			}
 			return outStr.toString();
 		}
 	}
@@ -286,25 +422,46 @@ class ViewXmlHtmlParser {
 				this.meLinks = new LinkedList<Link>();
 			outStr.append("<div id='sideMenu' class='sidenav'><a href='javascript:void(0)' class='closebtn' onclick='closeNav()'>&times;</a>");
 			this.meLinks.stream().forEach(pe -> outStr.append(pe.getHtml()));
-			outStr.append("</div><span style='font-size:30px;cursor:pointer;' onclick='openNav()'>&#9776; MENU</span><br /><br /><br />");
+			outStr.append("</div><span class='menuSpan' onclick='openNav()'>&#9776; MENU</span><br /><br /><br />");
 			return outStr.toString();
 		}
 	}
 
+	// An entry class for XML purposes
+	@XmlAccessorType(XmlAccessType.NONE)
+	private static class XmlEntry {
+		// Fields
+		@XmlElement(name="Key")
+		private String meKey;
+		@XmlElement(name="Value")
+		private String meValue;
+
+		public String getKey() {
+			return meKey;
+		}
+
+		public String getValue() {
+			return meValue;
+		}
+	}
+
+
 	// Fields
-	//@XmlElement//(name = "PageElement")
 	@XmlElements({
 		@XmlElement(name="LabledTextBox", type=LabledTextBox.class),
+		@XmlElement(name="LabledTextArea", type=LabledTextArea.class),
 		@XmlElement(name="LabledTextValue", type=LabledTextValue.class),
-		@XmlElement(name="DropBox", type=DropBox.class),
+		@XmlElement(name="DropBox", type=LabledDropBox.class),
 		@XmlElement(name="Group", type=Group.class),
 		@XmlElement(name="SideMenu", type=SideMenu.class),
 		@XmlElement(name="Button", type=Button.class),
 		@XmlElement(name="Link", type=Link.class),
 		@XmlElement(name="Link", type=Link.class),
-		@XmlElement(name="XmlGoal", type=XmlGoal.class)
+		@XmlElement(name="XmlGoal", type=XmlGoal.class),
+		@XmlElement(name="XmlUser", type=XmlUser.class)
 	})
 	private List<PageElement> mePage;
+
 
 	public String getHtml() {
 		StringBuilder outStr = new StringBuilder(8192);

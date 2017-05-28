@@ -3,6 +3,8 @@
  */
 package model;
 
+import java.util.UUID;
+
 /**
  * A class that represents a raw request.
  * @author Janty Azmat
@@ -27,9 +29,11 @@ public class RawRequest {
 		CHAT,
 		GOAL,
 		GOALEDIT,
-		SUPERPAGE,
+//		SUPERPAGE,
 		USER,
-		REGISTER,
+//		REGISTER,
+		OFFICE,
+		GROUP,
 		SHA1
 		//NONE
 	}
@@ -47,10 +51,18 @@ public class RawRequest {
 		String[] tmpArr = reqString.split(" ", 3);
 		String[] tmpCred = tmpArr[1].split(":", 2);
 		String[] tmpType = tmpArr[0].split("_");
-		if (tmpCred.length == 2) {
+		if (tmpCred.length == 2) { // If request contains email and passward
 			this.meEmail = tmpCred[0].startsWith("/") ? tmpCred[0].substring(1) : tmpCred[0];
 			this.meSha1Pass = tmpCred[1];
-		} else {
+		} else if (tmpArr[1].length() == 37) { // If request contains UUID (to activate user)
+			try { // A try block to check if valid UUID
+				UUID tmpUUID = UUID.fromString(tmpArr[1].startsWith("/") ? tmpArr[1].substring(1) : tmpArr[1]); // To check if valid UUID
+				this.meEmail = tmpUUID.toString();
+			} catch (IllegalArgumentException e) {
+				this.meEmail = "null";
+			}
+			this.meSha1Pass = "null";
+		} else { // Other no-credential-needed cases
 			this.meEmail = "null";
 			this.meSha1Pass = "null";
 		}
@@ -99,13 +111,19 @@ public class RawRequest {
 			case "USER":
 				this.meTarget = RawRequestTarget.USER;
 				break;
-			case "REGISTER":
-				if (this.meType == RawRequestType.GET) {
-					this.meTarget = RawRequestTarget.REGISTER;
-				} else {
-					this.meType = RawRequestType.BAD;
-					//this.meTarget = RawRequestTarget.NONE;
-				}
+//			case "REGISTER":
+//				if (this.meType == RawRequestType.GET) {
+//					this.meTarget = RawRequestTarget.REGISTER;
+//				} else {
+//					this.meType = RawRequestType.BAD;
+//					//this.meTarget = RawRequestTarget.NONE;
+//				}
+//				break;
+			case "OFFICE":
+				this.meTarget = RawRequestTarget.OFFICE;
+				break;
+			case "GROUP":
+				this.meTarget = RawRequestTarget.GROUP;
 				break;
 			case "SHA1":
 				if (this.meType == RawRequestType.GET) {

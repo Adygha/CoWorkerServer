@@ -120,7 +120,8 @@ class ViewClientTransaction implements Runnable {
 				tmpStr = tmpStr.substring(tmpStr.indexOf("Content-Length:") + 15); // Cut the unnecessary part (15 is the length of "Content-Length:")
 				int tmpLen = Integer.parseInt(tmpStr.substring(0, tmpStr.indexOf('\n')).trim()); // Get content-length
 				tmpStr = tmpStr.substring(tmpStr.indexOf("\r\n\r\n") + 4); // Get only the content
-				if (tmpStr.length() < tmpLen)
+				//if (tmpStr.length() < tmpLen)
+				if (tmpStr.getBytes().length < tmpLen)
 					return false; // In case not all content received
 			} catch (IndexOutOfBoundsException | NumberFormatException e) { // These 2 exceptions will happen if not everything is received
 				return false;

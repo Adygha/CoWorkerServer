@@ -1,28 +1,73 @@
 <script>
 var REGEX = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 var COK_NAME = 'coworkers_credentials';
-function saveCred() {
-	var txtEmail = document.getElementById('txtBoxEmail');
-	var txtPass = document.getElementById('txtBoxPass');
-	if (txtEmail.value && txtPass.value && REGEX.test(txtEmail.value)) {
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (xhttp.readyState == 4) {
-				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
-					displayWarning(xhttp.responseXML.documentElement.textContent);
-				} else {
-					writeCookie(txtEmail.value + ':' + xhttp.responseXML.documentElement.textContent);
-					getMain();
+function saveCred(isLogin) {
+	var txtEmail = document.getElementById('txtEmail');
+	var txtPass = document.getElementById('txtPass');
+	var txtPassConf = document.getElementById('txtPassConf');
+	if (txtEmail) {
+		if (txtEmail.value && txtPass.value && REGEX.test(txtEmail.value)) {
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (xhttp.readyState == 4) {
+					if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+						displayWarning(xhttp.responseXML.documentElement.textContent);
+					} else {
+						writeCookie(txtEmail.value + ':' + xhttp.responseXML.documentElement.textContent);
+						if (isLogin) {
+							getMain();
+						}
+					}
 				}
-			}
-		};
-		xhttp.open('HTML_GET_SHA1', 'null');
-		xhttp.send(txtPass.value);
-	} else if (!txtEmail.value || !txtPass.value) {
-		displayWarning('Fields cannot be empty.');
-	} else if (!REGEX.test(txtEmail.value)) {
-		displayWarning('Invalid email format.');
+			};
+			xhttp.open('HTML_GET_SHA1', 'null');
+			xhttp.send(txtPass.value);
+		} else if (!txtEmail.value || !txtPass.value) {
+			displayWarning('Fields cannot be empty.');
+		} else if (!REGEX.test(txtEmail.value)) {
+			displayWarning('Invalid email format.');
+		}
+	} else {
+		if (txtPass.value && txtPassConf.value && txtPass.value === txtPassConf.value) {
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (xhttp.readyState == 4) {
+					if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+						displayWarning(xhttp.responseXML.documentElement.textContent);
+					} else {
+						var tmpMail = readCookie().split(':', 1)[0];
+						txtPass.value = xhttp.responseXML.documentElement.textContent;
+						updatePassword();
+						writeCookie(tmpMail + ':' + txtPass.value);
+						txtPass.value = '';
+						txtPassConf.value = '';
+					}
+				}
+			};
+			xhttp.open('HTML_GET_SHA1', 'null');
+			xhttp.send(txtPass.value);
+		} else if (!txtPass.value || !txtPassConf.value) {
+			displayWarning('Fields cannot be empty.');
+		} else if (txtPass.value !== txtPassConf.value) {
+			displayWarning('The input password in the password fields does not match.');
+		}
 	}
+}
+function updatePassword() {
+	var txtPass = document.getElementById('txtPass');
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_UPDATE_USER', readCookie());
+	xhttp.send(txtPass.value);
 }
 function getLogin() {
 	deleteCookie();
@@ -34,7 +79,11 @@ function getMain() {
 function getChat() {
 	getPage('CHAT');
 }
+function getGroupOffice() {
+	getPage('GROUP');
+}
 function getGoal(theGoal) {
+	closeNav();
 	var tmpCred = readCookie();
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -51,6 +100,7 @@ function getGoal(theGoal) {
 	xhttp.send(theGoal);
 }
 function getGoalEdit(theGoal) {
+	closeNav();
 	var tmpCred = readCookie();
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -66,16 +116,256 @@ function getGoalEdit(theGoal) {
 	xhttp.open('HTML_GET_GOALEDIT', tmpCred);
 	xhttp.send(theGoal);
 }
-function getSuper() {
-	getPage('SUPERPAGE');
+function createUpdateGoal(goalUUID) {
+	var txtGoalName = document.getElementById('txtGoalName');
+	var txtGoalDesc = document.getElementById('txtGoalDesc');
+	var txtGoalGrp = document.getElementById('txtGoalGrp');
+	var txtGoalPerc = document.getElementById('txtGoalPerc');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtGoalName.value && txtGoalPerc.value && !isNaN(txtGoalPerc.value) && txtGoalPerc.value >= 0 && txtGoalPerc.value <= 100) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open((goalUUID ? 'HTML_UPDATE_GOAL' : 'HTML_CREATE_GOAL'), readCookie());
+		xhttp.send((goalUUID ? goalUUID + '\n' : '') + txtGoalName.value + '\n' + txtGoalPerc.value + '\n' + txtGoalGrp.value + '\n' + txtGoalDesc.value);
+	} else if (!txtGoalName.value || !txtGoalPerc.value) {
+		displayWarning('Name and percentage fields cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	} else if (txtGoalPerc.value < 0 || txtGoalPerc.value > 100) {
+		displayWarning('Percentage should be between 1 and 100.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
 }
-function getUserEdit() {
-	getPage('USER');
+function createGroup() {
+	var txtGoalGrpText = document.getElementById('txtGoalGrpText');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtGoalGrpText.value) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open('HTML_CREATE_GROUP', readCookie());
+		xhttp.send(txtGoalGrpText.value);
+	} else {
+		displayWarning('Group name cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
 }
-function getRegister() {
-	getPage('REGISTER');
+function updateGroup() {
+	var txtGoalGrp = document.getElementById('txtGoalGrp');
+	var txtGoalGrpText = document.getElementById('txtGoalGrpText');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtGoalGrpText.value) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open('HTML_UPDATE_GROUP', readCookie());
+		xhttp.send(txtGoalGrp.value + '\n' + txtGoalGrpText.value);
+	} else {
+		displayWarning('Group name cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
+}
+function deleteGroup() {
+	var txtGoalGrp = document.getElementById('txtGoalGrp');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			for (var i = 0; i < allButs.length; i++) {
+				allButs[i].disabled = false;
+			}
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_DELETE_GROUP', readCookie());
+	xhttp.send(txtGoalGrp.value);
+}
+function createOffice() {
+	var txtOfficeText = document.getElementById('txtOfficeText');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtOfficeText.value) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open('HTML_CREATE_OFFICE', readCookie());
+		xhttp.send(txtOfficeText.value);
+	} else {
+		displayWarning('Office name cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
+}
+function updateOffice() {
+	var txtOffice = document.getElementById('txtOffice');
+	var txtOfficeText = document.getElementById('txtOfficeText');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtOfficeText.value) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open('HTML_UPDATE_OFFICE', readCookie());
+		xhttp.send(txtOffice.value + '\n' + txtOfficeText.value);
+	} else {
+		displayWarning('Office name cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
+}
+function deleteOffice() {
+	var txtOffice = document.getElementById('txtOffice');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			for (var i = 0; i < allButs.length; i++) {
+				allButs[i].disabled = false;
+			}
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_DELETE_OFFICE', readCookie());
+	xhttp.send(txtOffice.value);
+}
+function deleteGoal(goalUUID) {
+	var xhttp = new XMLHttpRequest();
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			for (var i = 0; i < allButs.length; i++) {
+				allButs[i].disabled = false;
+			}
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_DELETE_GOAL', readCookie());
+	xhttp.send(goalUUID);
+}
+function getUser(theUser) {
+	closeNav();
+	var tmpCred = readCookie();
+	var xhttp = new XMLHttpRequest();
+	if (!theUser && tmpCred !== 'null') {
+		theUser = tmpCred.split(':', 1)[0];
+	}
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_GET_USER', tmpCred);
+	xhttp.send(theUser);
 }
 function getPage(thePage) {
+	closeNav();
 	var tmpCred = readCookie();
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
@@ -90,6 +380,97 @@ function getPage(thePage) {
 	};
 	xhttp.open('HTML_GET_' + thePage, tmpCred);
 	xhttp.send();
+}
+function createUser() {
+	var txtEmail = document.getElementById('txtEmail');
+	var txtPass = document.getElementById('txtPass');
+	var txtName = document.getElementById('txtName');
+	var txtOffice = document.getElementById('txtOffice');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtEmail.value && txtPass.value && txtName.value && REGEX.test(txtEmail.value)) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					saveCred(false);
+					displayWarning(xhttp.responseXML.documentElement.textContent, 20000);
+				}
+			}
+		};
+		xhttp.open('HTML_CREATE_USER', 'null');
+		xhttp.send(txtEmail.value + '\n' + txtPass.value + '\n' + txtName.value + '\n' + txtOffice.value);
+	} else if (!txtEmail.value || !txtPass.value || !txtName.value) {
+		displayWarning('Fields cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	} else if (!REGEX.test(txtEmail.value)) {
+		displayWarning('Invalid email format.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
+}
+function updateUser(userEmail) {
+	var txtPass = document.getElementById('txtPass');
+	var txtName = document.getElementById('txtName');
+	var txtUserType = document.getElementById('txtUserType');
+	var txtOffice = document.getElementById('txtOffice');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtName.value) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open('HTML_UPDATE_USER', readCookie());
+		xhttp.send(userEmail + '\n' + (txtPass.value ? txtPass.value : 'null') + '\n' + txtName.value + '\n' + (txtUserType ? txtUserType.value + '\n' : '') + txtOffice.value);
+	} else {
+		displayWarning('Name field cannot be empty.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
+}
+function deleteUser(userUUID) {
+	var xhttp = new XMLHttpRequest();
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	xhttp.onreadystatechange = function() {
+		if (xhttp.readyState == 4) {
+			for (var i = 0; i < allButs.length; i++) {
+				allButs[i].disabled = false;
+			}
+			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+				displayWarning(xhttp.responseXML.documentElement.textContent);
+			} else {
+				document.write(xhttp.response);
+				document.close();
+			}
+		}
+	};
+	xhttp.open('HTML_DELETE_USER', readCookie());
+	xhttp.send(userUUID);
 }
 function readCookie() {
 	if(document.cookie) {
@@ -119,18 +500,22 @@ function writeCookie(theData) {
 function deleteCookie() {
 	document.cookie = COK_NAME + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 }
-function displayWarning(theWarning) {
+function displayWarning(theWarning, theInterval) {
 	var tmpWarn = document.getElementById('WARNING');
 	tmpWarn.innerHTML = theWarning;
 	if (theWarning !== '') {
-		setTimeout(displayWarning, 4000, '');
+		setTimeout(displayWarning, theInterval === undefined ? 4000 : theInterval, '');
 	}
 }
 function openNav() {
-    document.getElementById('sideMenu').style.width = '250px';
+	if (document.getElementById('sideMenu')) {
+		document.getElementById('sideMenu').style.width = '250px';
+	}
 }
 function closeNav() {
-    document.getElementById('sideMenu').style.width = '0';
+	if (document.getElementById('sideMenu')) {
+		document.getElementById('sideMenu').style.width = '0';
+	}
 }
 </script>
 </body></html>

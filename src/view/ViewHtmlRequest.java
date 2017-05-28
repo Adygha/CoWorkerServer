@@ -26,10 +26,14 @@ class ViewHtmlRequest implements IViewRequest {
 		} else if (tmpArr[0].startsWith(me_HTML_PREFIX)) { // If it is a CoWorker application specific HTML request
 			this.meRawReq = reqestData.substring(me_HTML_PREFIX.length());
 		} else { // If this is the initial connection requesting a page (or an erroneous request)
-			this.meIsDirect = true;
+			if (!tmpArr[0].equals("GET") || tmpArr[1].length() != 37)
+				this.meIsDirect = true;
 			switch (tmpArr[0]) {
 				case "GET": // This is the case of visiting the server's site for the initial time
-					this.meRawReq = tmpArr[0] + " " + tmpArr[1]; // We don't need to add more info, because only the init page or favicon.ico will be the response in this case
+					if (tmpArr[1].length() == 37) // The case of UUID (the slash char + 36 for UUID chars)
+						this.meRawReq = "UPDATE_USER " + tmpArr[1] + " " + tmpArr[2];
+					else // The case of init page or favicon.ico
+						this.meRawReq = tmpArr[0] + " " + tmpArr[1]; // We don't need to add more info
 					break;
 				case "PUT":
 				case "POST":
