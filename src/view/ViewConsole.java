@@ -73,7 +73,7 @@ public class ViewConsole {
 	// A method to write to just write to log file
 	private void writeLog(String theLog) {
 		try {
-			// TODO CHECK FOR FILE EXIST AND CHECK SIZE TO BACKUP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			// HERE WE SHOULD CHECK FOR FILE EXIST AND CHECK SIZE TO BACKUP (Not important for this course) <<<<<<<<<<<<<<
 			BufferedWriter tmpLog = new BufferedWriter(new FileWriter(me_LOG_FILE, true));
 			tmpLog.write("\r\n" + LocalDateTime.now() + " : " + theLog);
 			tmpLog.close();

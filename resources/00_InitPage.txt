@@ -45,7 +45,8 @@ function reqLogin() {
 	xhttp.onreadystatechange = function() {
 		if (xhttp.readyState == 4) {
 			if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
-				alert("Server is under maintenance.. Please try again later.")
+				document.write("Server is under maintenance.. Please try again later.");
+				document.close();
 			} else {
 				document.write(xhttp.response);
 				document.close();

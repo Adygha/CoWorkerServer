@@ -6,6 +6,7 @@ package model.data_access;
 import java.sql.SQLException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
+import model.Comment;
 import model.Goal;
 import model.GoalGroup;
 import model.User;
@@ -36,4 +37,8 @@ public interface IDao extends AutoCloseable {
 	void addUser(User newUser) throws SQLException;
 	void updateUser(User updatedUser) throws SQLException;
 	void deleteUser(String userUUID) throws SQLException;
+	List<Comment> getComment(String goalUUID) throws SQLException;
+	void addComment(Comment newComment) throws SQLException;
+	void editComment(Comment updatedComment);
+	void deleteComment(String commentUUID);
 }

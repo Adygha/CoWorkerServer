@@ -11,8 +11,12 @@ import model.data_access.IDao;
  * @author Janty Azmat
  */
 public class Starter {
+	// Constants
+	public static int SERVER_PORT = 8888; // Set the default port if not specified in command line
 
 	public static void main(String[] args) {
+		if (args != null && args.length > 0) // Change the port if desired in the command line
+			SERVER_PORT = Integer.parseInt(args[0]);
 		try (IDao tmpDao = new DerbyDao()) {
 			CoWorkerServer tmpSrv = new CoWorkerServer(tmpDao);
 			tmpSrv.start();

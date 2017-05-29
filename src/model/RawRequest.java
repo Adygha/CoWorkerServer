@@ -29,17 +29,13 @@ public class RawRequest {
 		CHAT,
 		GOAL,
 		GOALEDIT,
-//		SUPERPAGE,
 		USER,
-//		REGISTER,
 		OFFICE,
 		GROUP,
 		SHA1
-		//NONE
 	}
 
 	// Fields
-	//private boolean meIsCredOk;
 	private RawRequestType meType;
 	private RawRequestTarget meTarget;
 	private String meEmail;
@@ -88,7 +84,6 @@ public class RawRequest {
 					this.meTarget = RawRequestTarget.LOGIN;
 				} else {
 					this.meType = RawRequestType.BAD;
-					//this.meTarget = RawRequestTarget.NONE;
 				}
 				break;
 			case "MAIN":
@@ -96,7 +91,6 @@ public class RawRequest {
 					this.meTarget = RawRequestTarget.MAIN;
 				} else {
 					this.meType = RawRequestType.BAD;
-					//this.meTarget = RawRequestTarget.NONE;
 				}
 				break;
 			case "CHAT":
@@ -111,14 +105,6 @@ public class RawRequest {
 			case "USER":
 				this.meTarget = RawRequestTarget.USER;
 				break;
-//			case "REGISTER":
-//				if (this.meType == RawRequestType.GET) {
-//					this.meTarget = RawRequestTarget.REGISTER;
-//				} else {
-//					this.meType = RawRequestType.BAD;
-//					//this.meTarget = RawRequestTarget.NONE;
-//				}
-//				break;
 			case "OFFICE":
 				this.meTarget = RawRequestTarget.OFFICE;
 				break;
@@ -130,7 +116,6 @@ public class RawRequest {
 					this.meTarget = RawRequestTarget.SHA1;
 				} else {
 					this.meType = RawRequestType.BAD;
-					//this.meTarget = RawRequestTarget.NONE;
 				}
 				break;
 		}

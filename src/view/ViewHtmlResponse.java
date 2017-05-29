@@ -14,24 +14,23 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
 /**
+ * A class that is responsible for the translation of the raw string response to an HTML response that the client's browser can understand.
  * @author Janty Azmat
  */
 class ViewHtmlResponse implements IViewResponse {
 	// Constants
-	// Ready-made base responses
+		// Ready-made base responses
 	private static final String me_200_OK_STARTER = "HTTP/1.1 200 OK\r\nServer: CoWorkerServer\r\n";
 	private static final String me_400_BAD_REQUEST = "HTTP/1.1 400 Bad Request\r\nServer: CoWorkerServer\r\nContent-Length: 50\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>400 Bad request</h1></body></html>";
 	private static final String me_403_FORBIDDEN = "HTTP/1.1 403 Forbidden\r\nServer: CoWorkerServer\r\nContent-Length: 48\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>403 Forbidden</h1></body></html>";
 	private static final String me_501_NOT_IMPLEMENTED = "HTTP/1.1 501 Not Implemented\r\nServer: CoWorkerServer\r\nContent-Length: 54\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>501 Not Implemented</h1></body></html>";
-	//private static final String me_503_SERVICE_UNAVAILABLE = "HTTP/1.1 503 Service Unavailable\r\nServer: CoWorkerServer\r\nContent-Length: 80\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>503 Service Unavailable</h1>Please try again later</body></html>";
 	private static final String me_505_HTTP_NOT_SUPPORTED = "HTTP/1.1 505 HTTP Version Not Supported\r\nServer: CoWorkersServer\r\nContent-Length: 65\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><body><h1>505 HTTP Version Not Supported</h1></body></html>";
-	// Page partials
+		// Page partials
 	private static final String me_CONTENT_LENGTH = "Content-Length: ";
 	private static final String me_HTML_CONTENT = "Content-Type: text/html\r\nConnection: close\r\n\r\n";
 	private static final String me_ICO_CONTENT = "Content-Type: image/x-icon\r\nConnection: close\r\n\r\n";
 	private static final String me_XML_CONTENT = "Content-Type: text/xml\r\nConnection: close\r\n\r\n";
-	//private static final String me_TXT_CONTENT = "Content-Type: text/plain\r\nConnection: close\r\n\r\n";
-	// Ready made resource pages
+		// Ready made resource pages
 	private static final String me_INIT_PAGE = "/00_InitPage.txt";
 	private static final String me_PAGE_TOP = "/00_PageTop.txt";
 	private static final String me_PAGE_BOT = "/00_PageBot.txt";
@@ -107,10 +106,6 @@ class ViewHtmlResponse implements IViewResponse {
 	private byte[] create501NotImplemented() {
 		return me_501_NOT_IMPLEMENTED.getBytes();
 	}
-
-//	private byte[] create503ServiceUnavailable() {
-//		return me_503_SERVICE_UNAVAILABLE.getBytes();
-//	}
 
 	private byte[] create505WrongHTTPVer() {
 		return me_505_HTTP_NOT_SUPPORTED.getBytes();

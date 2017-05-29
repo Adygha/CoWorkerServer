@@ -15,22 +15,21 @@ import javax.xml.bind.annotation.XmlElements;
  * @author Janty Azmat
  */
 @XmlAccessorType(XmlAccessType.NONE)
-class ViewXmlHtmlParser {
+class ViewXmlHtmlParser { // There are few private classes inside this class and they are strictly for XML purposes and not related to design.
 	// Constants
 	private static final String me_GET_LOGIN_FUNC = "getLogin()";
 	private static final String me_GET_MAIN_FUNC = "getMain()";
 	private static final String me_GET_CHAT_FUNC = "getChat()";
 	private static final String me_GET_GOAL_FUNC = "getGoal(\"";
 	private static final String me_GET_GOALEDIT_FUNC = "getGoalEdit(\"";
-	//private static final String me_GET_SUPERPAGE_FUNC = "getSuper()";
 	private static final String me_GET_USER_FUNC = "getUser(\"";
-	//private static final String me_GET_REGISTER_FUNC = "getRegister()";
 	private static final String me_GET_GROUPOFFICE_FUNC = "getGroupOffice()";
 	private static final String me_GET_SHA1_FUNC = "saveCred(true)";
 	private static final String me_CREATE_USER_FUNC = "createUser()";
 	private static final String me_CREATE_GOAL_FUNC = "createUpdateGoal()";
 	private static final String me_CREATE_OFFICE_FUNC = "createOffice()";
 	private static final String me_CREATE_GROUP_FUNC = "createGroup()";
+	private static final String me_CREATE_CHAT_FUNC = "createChat(\"";
 	private static final String me_UPDATE_USER_FUNC = "updateUser(\"";
 	private static final String me_UPDATE_GOAL_FUNC = "createUpdateGoal(\"";
 	private static final String me_UPDATE_OFFICE_FUNC = "updateOffice()";
@@ -71,9 +70,6 @@ class ViewXmlHtmlParser {
 				case "GET_CHAT":
 					outStr.append(me_GET_CHAT_FUNC);
 					break;
-//				case "GET_GOAL":
-//					outStr.append(me_GET_GOAL_FUNC);
-//					break;
 				case "GET_GOALEDIT":
 					outStr.append(me_GET_GOALEDIT_FUNC);
 					outStr.append("\")");
@@ -82,17 +78,11 @@ class ViewXmlHtmlParser {
 					outStr.append(me_GET_USER_FUNC);
 					outStr.append("\")");
 					break;
-//				case "GET_REGISTER":
-//					outStr.append(me_GET_REGISTER_FUNC);
-//					break;
 				case "GET_GROUPOFFICE":
 					outStr.append(me_GET_GROUPOFFICE_FUNC);
 					break;
-//				case "GET_SHA1":
-//					outStr.append(me_GET_SHA1_FUNC);
-//					break;
 				default:
-					outStr.append(this.meCommand); // TODO: Better remove
+					outStr.append("displayWarning('Erroneous command')");
 			}
 			outStr.append("'>");
 			outStr.append(super.meTitle.replace(" ", "&nbsp")); // Just to avoid linebreaks in links
@@ -133,16 +123,10 @@ class ViewXmlHtmlParser {
 					outStr.append(this.meCommParam);
 					outStr.append("\")");
 					break;
-//				case "GET_SUPERPAGE":
-//					outStr.append(me_GET_SUPERPAGE_FUNC);
-//					break;
 				case "GET_USER":
 					outStr.append(me_GET_USER_FUNC);
 					outStr.append("\")");
 					break;
-//				case "GET_REGISTER":
-//					outStr.append(me_GET_REGISTER_FUNC);
-//					break;
 				case "GET_GROUPOFFICE":
 					outStr.append(me_GET_GROUPOFFICE_FUNC);
 					break;
@@ -160,6 +144,11 @@ class ViewXmlHtmlParser {
 					break;
 				case "CREATE_GROUP":
 					outStr.append(me_CREATE_GROUP_FUNC);
+					break;
+				case "CREATE_CHAT":
+					outStr.append(me_CREATE_CHAT_FUNC);
+					outStr.append(this.meCommParam);
+					outStr.append("\")");
 					break;
 				case "UPDATE_USER":
 					outStr.append(me_UPDATE_USER_FUNC);
@@ -194,7 +183,7 @@ class ViewXmlHtmlParser {
 					outStr.append(me_DELETE_GROUP_FUNC);
 					break;
 				default:
-					outStr.append(this.meCommand); // TODO: Better remove
+					outStr.append("displayWarning('Erroneous command')");
 			}
 			outStr.append("'>");
 			outStr.append(super.meTitle);
@@ -210,12 +199,8 @@ class ViewXmlHtmlParser {
 		private int mePer;
 		@XmlElement(name="Command")
 		private String meCommand;
-//		@XmlElement(name="Description")
-//		private String meDecr;
 		@XmlElement(name="IsPage")
 		private boolean meIsPage;
-//		@XmlElement(name="GroupUUID")
-//		private String meGroupUUID;
 
 		@Override
 		public String getHtml() {
@@ -264,6 +249,28 @@ class ViewXmlHtmlParser {
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
+	private static class XmlComment extends PageElement {
+		// Fields
+		@XmlElement(name="TextContent")
+		private String meTxtCont;
+		@XmlElement(name="Style")
+		private String meStyle;
+
+		@Override
+		public String getHtml() {
+			StringBuilder outStr = new StringBuilder(256);
+			outStr.append("<div class='talkBubble ");
+			outStr.append(this.meStyle);
+			outStr.append("'><b>");
+			outStr.append(super.meTitle);
+			outStr.append("</b><p>");
+			outStr.append(this.meTxtCont);
+			outStr.append("</p></div><br />");
+			return outStr.toString();
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.NONE)
 	private static class Group extends PageElement {
 		// Fields
 		@XmlElements({
@@ -277,7 +284,8 @@ class ViewXmlHtmlParser {
 			@XmlElement(name="Link", type=Link.class),
 			@XmlElement(name="Link", type=Link.class),
 			@XmlElement(name="XmlGoal", type=XmlGoal.class),
-			@XmlElement(name="XmlUser", type=XmlUser.class)
+			@XmlElement(name="XmlUser", type=XmlUser.class),
+			@XmlElement(name="XmlComment", type=XmlComment.class)
 		})
 		private List<PageElement> meElems;
 
@@ -352,7 +360,7 @@ class ViewXmlHtmlParser {
 		@Override
 		public String getHtml() {
 			StringBuilder outStr = new StringBuilder(64);
-			outStr.append("<br /><fieldset><legend>");
+			outStr.append("<br /><fieldset style='white-space: pre-wrap;'><legend>");
 			outStr.append(super.meTitle);
 			outStr.append("</legend>");
 			outStr.append(this.meTxt);
@@ -458,7 +466,8 @@ class ViewXmlHtmlParser {
 		@XmlElement(name="Link", type=Link.class),
 		@XmlElement(name="Link", type=Link.class),
 		@XmlElement(name="XmlGoal", type=XmlGoal.class),
-		@XmlElement(name="XmlUser", type=XmlUser.class)
+		@XmlElement(name="XmlUser", type=XmlUser.class),
+		@XmlElement(name="XmlComment", type=XmlComment.class)
 	})
 	private List<PageElement> mePage;
 

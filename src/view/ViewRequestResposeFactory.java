@@ -10,7 +10,7 @@ import javax.xml.bind.JAXBException;
  */
 class ViewRequestResposeFactory {
 	// A private enum to specify the type of the transaction
-	private enum TransactionType {
+	private enum TransactionType { // Other types can be added here
 		DATA,
 		HTML
 	}
@@ -31,7 +31,8 @@ class ViewRequestResposeFactory {
 	public IViewRequest createViewRequest() {
 		IViewRequest outReq = null;
 		switch (this.meType) {
-			case DATA: // TODO
+			case DATA: // Here, we choose the concrete ViewDataRequest
+				outReq = new ViewDataRequest(this.meReq);
 				break;
 			case HTML: // Here, we choose the concrete ViewHtmlRequest
 				outReq = new ViewHtmlRequest(this.meReq);
@@ -42,7 +43,8 @@ class ViewRequestResposeFactory {
 	public IViewResponse createViewResponse(String rawResponse) throws JAXBException {
 		IViewResponse outResp = null;
 		switch (this.meType) {
-			case DATA: // TODO
+			case DATA: // Here, we choose the concrete ViewDataResponse
+				outResp = new ViewDataResponse(rawResponse);
 				break;
 			case HTML: // Here, we choose the concrete ViewHtmlResponse
 				outResp = new ViewHtmlResponse(rawResponse);

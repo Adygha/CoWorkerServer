@@ -66,11 +66,4 @@ public class CoWorkerServer implements IViewObserver, IModelObserver { // No mod
 	public boolean requestCheckPaused() {
 		return this.meIsPause;
 	}
-
-//	@Override
-//	public byte[] requestClientResponse(byte[] theRequest) {
-//		MyRequest tmpReq = new MyRequest(new String(theRequest));
-//		return new MyResponse(tmpReq, this).getResponseBytes();
-//	}
-
 }

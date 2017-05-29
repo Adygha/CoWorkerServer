@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -20,6 +19,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.xml.bind.JAXBException;
+import controller.Starter;
 import model.User.UserType;
 import model.data_access.IDao;
 
@@ -35,7 +35,7 @@ public class RawResponse {
 	private static final String me_SMTP_PORT = "465";
 	private static final String me_SUPER_EMAIL = "coworkers@gmx.com";
 	private static final String me_SUPER_PASS = "qazqazqaz";
-	private static final String me_SITE_LINK = "https://lans.ml:9999/";
+	private static final String me_SITE_LINK = "https://lans.ml:" + Starter.SERVER_PORT + "/";
 	// Fields
 	private String meData;
 	private IDao meDao;
@@ -95,8 +95,17 @@ public class RawResponse {
 								}
 								break;
 							case CHAT:
-								if (this.meIsCredOk) {
-									this.meData = this.meXmlBld.buildChatPage();
+								if (this.meIsCredOk && tmpUser.getUserType() == UserType.NEW) {
+									this.meData = this.meXmlBld.buildSingleElement(
+											me_WARN_ELEM, "Cannot chat now. Please activate your account first.");
+								} else if (this.meIsCredOk) {
+									try {
+										this.meData = this.meXmlBld.buildChatPage(this.meDao.getComment("null"), tmpUser);
+									} catch (SQLException e) {
+										this.meObserver.requestPrintErrWarn("Error getting chat data data from database.", false);
+										this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
+												"Cannot get chat data data from database. Please try again later.");
+									}
 								} else {
 									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Credentials are not correct. Access denied.");
 								}
@@ -106,7 +115,7 @@ public class RawResponse {
 									try {
 										Goal tmpGoal = this.meDao.getGoal(theRequest.getPayloadData());
 										this.meData = this.meXmlBld.buildGoalPage(tmpGoal, this.meDao.getGoalGroup(
-												tmpGoal.getGroupUUID()).getName(), tmpUser.getUserType() == UserType.ADMIN);
+												tmpGoal.getGroupUUID()).getName(), this.meDao.getComment(tmpGoal.getUUID()), tmpUser);
 									} catch (SQLException e) {
 										this.meObserver.requestPrintErrWarn("Error getting goal data from database.", false);
 										this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
@@ -180,13 +189,33 @@ public class RawResponse {
 								break;
 							default: //case SHA1:
 								this.meData = this.meXmlBld.buildSingleElement(me_SHA1_ELEM, this.createSha1Hash(theRequest.getPayloadData()));
-								//break;
 						}
 						break;
 					case CREATE:
 						switch (theRequest.getTarget()) {
 							case CHAT:
-								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
+								if (this.meIsCredOk && tmpUser.getUserType() == UserType.NEW) {
+									this.meData = this.meXmlBld.buildSingleElement(
+											me_WARN_ELEM, "Cannot chat now. Please activate your account first.");
+								} else if (this.meIsCredOk) {
+									String[] tmpArr = theRequest.getPayloadData().split("\n", 2);
+									try {
+										this.meDao.addComment(new Comment(tmpUser.getUUID(), tmpArr[0], tmpArr[1], null, tmpUser));
+										if (tmpArr[0].equals("null")) { // Then Chat page
+											this.meData = this.meXmlBld.buildChatPage(this.meDao.getComment("null"), tmpUser);
+										} else { // Then Goal page
+											Goal tmpGoal = this.meDao.getGoal(tmpArr[0]);
+											this.meData = this.meXmlBld.buildGoalPage(tmpGoal, this.meDao.getGoalGroup(
+													tmpGoal.getGroupUUID()).getName(), this.meDao.getComment(tmpGoal.getUUID()), tmpUser);
+										}
+									} catch (SQLException e) {
+										this.meObserver.requestPrintErrWarn("Error creatin chat in database.", false);
+										this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM,
+												"Cannot create chat in database. Please try again later.");
+									}
+								} else {
+									this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Credentials are not correct. Access denied.");
+								}
 								break;
 							case GOAL:
 								if (this.meIsCredOk && tmpUser.getUserType() == UserType.ADMIN) {
@@ -296,7 +325,7 @@ public class RawResponse {
 					case UPDATE:
 						switch (theRequest.getTarget()) {
 							case CHAT:
-								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // This is in the design but not implemented yet
 								break;
 							case GOAL:
 								if (this.meIsCredOk && tmpUser.getUserType() == UserType.ADMIN) {
@@ -412,7 +441,7 @@ public class RawResponse {
 					case DELETE:
 						switch (theRequest.getTarget()) {
 							case CHAT:
-								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // TODO:
+								this.meData = this.meXmlBld.buildSingleElement(me_WARN_ELEM, "Not Yet Implemented."); // This is in the design but not implemented yet
 								break;
 							case GOAL:
 								if (this.meIsCredOk && tmpUser.getUserType() == UserType.ADMIN) {
@@ -497,6 +526,7 @@ public class RawResponse {
 		return this.meData;
 	}
 
+	// A method just to send an email to the newly created user for activation (not in the design; So, keeping it private now)
 	private void sendEmail(String eMail, String theSubject, String theText) throws MessagingException {
 		Properties tmpProps = new Properties();
 		tmpProps.put("mail.smtp.host", me_SMTP_SERVER);
@@ -512,6 +542,7 @@ public class RawResponse {
 		Transport.send(tmpMsg, me_SUPER_EMAIL, me_SUPER_PASS);
 	}
 
+	// A method to get a SHA-1 hash (for passwords).
 	private String createSha1Hash(String theData) {
 		String outSha1 = null;
 		try {

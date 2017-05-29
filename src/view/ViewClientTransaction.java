@@ -28,7 +28,6 @@ class ViewClientTransaction implements Runnable {
 	public void run() {
 		if (this.meAccSock == null)
 			return;
-		System.out.println("Client connection accepted.."); // TODO: Should remove
 		this.meAccSock.setEnabledCipherSuites(this.meAccSock.getSupportedCipherSuites());
 		try {
 			this.meAccSock.startHandshake();
@@ -37,7 +36,6 @@ class ViewClientTransaction implements Runnable {
 			try {
 				this.meAccSock.close();
 			} catch (IOException e1) {/* Can be safely ignored */}
-			System.out.println("Client connection closed..SSSSSSSSSSSSLLLLLLLLLLLLLLLLLLLLLLLLL"); // TODO: Should remove
 			return;
 		}
 		byte[] tmpReq = this.receiveRequest();
@@ -45,7 +43,6 @@ class ViewClientTransaction implements Runnable {
 			try {
 				this.meAccSock.close();
 			} catch (IOException e1) {/* Can be safely ignored */}
-			System.out.println("Client connection closed..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"); // TODO: Should remove
 			return;
 		}
 		ViewRequestResposeFactory tmpFac = new ViewRequestResposeFactory(tmpReq);
@@ -61,7 +58,6 @@ class ViewClientTransaction implements Runnable {
 			this.meObserver.requestPrintErrWarn("Error while creating the XML bilder, or extracting XML data.", true);
 		}
 		this.sendResponse(tmpViewResp.getResponseData());
-		System.out.println("Client connection closed.."); // TODO: Should remove
 	}
 
 	// A method to fully get the request bytes
@@ -86,9 +82,9 @@ class ViewClientTransaction implements Runnable {
 				} catch (IOException e1) {/* Can be safely ignored */}
 			}
 		}
-		System.out.println("----------------- Start Request String -----------------");	//
-		System.out.println(tmpMsg.toString());											// TODO: Should remove
-		System.out.println("-----------------  End Request String  -----------------");	//
+//		System.out.println("----------------- Start Request String -----------------");	//
+//		System.out.println(tmpMsg.toString());											// To view the incoming request
+//		System.out.println("-----------------  End Request String  -----------------");	//
 		return tmpMsg.toByteArray();
 	}
 
@@ -104,9 +100,9 @@ class ViewClientTransaction implements Runnable {
 				} catch (IOException e1) {/* Can be safely ignored */}
 			}
 		}
-		System.out.println("----------------- Start Response String -----------------");	//
-		System.out.println(new String(respBytes));											// TODO: Should remove
-		System.out.println("-----------------  End Response String  -----------------");	//
+//		System.out.println("----------------- Start Response String -----------------");	//
+//		System.out.println(new String(respBytes));											// To view the outgoing response
+//		System.out.println("-----------------  End Response String  -----------------");	//
 	}
 
 	// Checks if the received data is empty (it fails when uploading files big enough to be multi-part but this
@@ -120,7 +116,6 @@ class ViewClientTransaction implements Runnable {
 				tmpStr = tmpStr.substring(tmpStr.indexOf("Content-Length:") + 15); // Cut the unnecessary part (15 is the length of "Content-Length:")
 				int tmpLen = Integer.parseInt(tmpStr.substring(0, tmpStr.indexOf('\n')).trim()); // Get content-length
 				tmpStr = tmpStr.substring(tmpStr.indexOf("\r\n\r\n") + 4); // Get only the content
-				//if (tmpStr.length() < tmpLen)
 				if (tmpStr.getBytes().length < tmpLen)
 					return false; // In case not all content received
 			} catch (IndexOutOfBoundsException | NumberFormatException e) { // These 2 exceptions will happen if not everything is received

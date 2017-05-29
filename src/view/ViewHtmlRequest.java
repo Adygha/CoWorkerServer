@@ -4,6 +4,7 @@
 package view;
 
 /**
+ * A class that is responsible for the translation of the HTML request to a raw string request that the model can understand.
  * @author Janty Azmat
  */
 class ViewHtmlRequest implements IViewRequest {

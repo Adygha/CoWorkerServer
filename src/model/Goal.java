@@ -15,7 +15,6 @@ public class Goal {
 	private String meDesc;
 	private String meGroupUUID;
 	private int mePcent;
-	//private LinkedList<Comment> meCmnts;
 
 	// Constructor for newly created goal
 	public Goal(String goalName, String goalDescription, int goalPercentage, String groupUUID) {
@@ -74,12 +73,4 @@ public class Goal {
 	public String getUUID() {
 		return meUUID;
 	}
-
-//	/**
-//	 * Returns a list of the goal's comments.
-//	 * @return	the goal's comments
-//	 */
-//	public List<Comment> getMeCmnts() {
-//		return meCmnts;
-//	}
 }

@@ -4,6 +4,7 @@
 package model;
 
 import java.io.StringWriter;
+import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +37,7 @@ class XmlBuilder {
 	private static final String me_TXTAREA_GOALDESC_ID = "txtGoalDesc";
 	private static final String me_DROPBOX_GOALGROUP_ID = "txtGoalGrp";
 	private static final String me_TXTBOX_GOALPERC_ID = "txtGoalPerc";
+	private static final String me_TXTBOX_COMMENT_ID = "txtComment";
 
 	@XmlAccessorType(XmlAccessType.NONE)
 	private static abstract class PageElement {
@@ -85,17 +87,12 @@ class XmlBuilder {
 		private int mePer;
 		@XmlElement(name="Command")
 		private String meCommand;
-//		@XmlElement(name="Description")
-//		private String meDecr;
 		@XmlElement(name="IsPage")
 		private boolean meIsPage;
-//		@XmlElement(name="GroupUUID")
-//		private String meGroupUUID;
 
 		// Constructor as main page goal
 		public XmlGoal(String goalName, int goalPercentage,  String theCommand) {
 			super(goalName);
-			//this.meIsPage = false;
 			this.mePer = goalPercentage;
 			this.meCommand = theCommand;
 		}
@@ -121,6 +118,31 @@ class XmlBuilder {
 	}
 
 	@XmlAccessorType(XmlAccessType.NONE)
+	private static class XmlComment extends PageElement {
+		// Fields
+		@XmlElement(name="TextContent")
+		private String meTxtCont;
+		@XmlElement(name="Style")
+		private String meStyle;
+
+		public XmlComment(Comment theComment, User viewerUser) {
+			super("On [" + theComment.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "] "
+						+ (theComment.getUser() == null ? "[Commenter Removed] wrote:" :
+							("[" + theComment.getUser().getFullName() + " : " + theComment.getUser().getEmail() + "]  wrote:")));
+			this.meTxtCont = theComment.getContent();
+			if (theComment.getUser() == null) {
+				this.meStyle = "arrowLeftOther";
+			} else if (theComment.getUser().getUUID().equals(viewerUser.getUUID())) {
+				this.meStyle = "arrowRight";
+			} else if (theComment.getUser().getOfficeUUID().equals(viewerUser.getOfficeUUID())) {
+				this.meStyle = "arrowLeftSame";
+			} else {
+				this.meStyle = "arrowLeftOther";
+			}
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.NONE)
 	private static class Group extends PageElement {
 		// Fields
 		@XmlElements({
@@ -134,7 +156,8 @@ class XmlBuilder {
 			@XmlElement(name="Link", type=Link.class),
 			@XmlElement(name="Link", type=Link.class),
 			@XmlElement(name="XmlGoal", type=XmlGoal.class),
-			@XmlElement(name="XmlUser", type=XmlUser.class)
+			@XmlElement(name="XmlUser", type=XmlUser.class),
+			@XmlElement(name="XmlComment", type=XmlComment.class)
 		})
 		private List<PageElement> meElems;
 
@@ -234,7 +257,8 @@ class XmlBuilder {
 		private boolean meIsEditable;
 
 		// Constructor
-		public LabledDropBox(String theTitle, List<SimpleEntry<String, String>> dropValues, String selectedValue, String boxID, boolean isEditable) {
+		public LabledDropBox(String theTitle, List<SimpleEntry<String, String>> dropValues,
+								String selectedValue, String boxID, boolean isEditable) {
 			super(theTitle);
 			this.meVals = new LinkedList<XmlEntry>();
 			dropValues.stream().forEach(se -> this.meVals.add(new XmlEntry(se)));
@@ -294,7 +318,8 @@ class XmlBuilder {
 		@XmlElement(name="Link", type=Link.class),
 		@XmlElement(name="Link", type=Link.class),
 		@XmlElement(name="XmlGoal", type=XmlGoal.class),
-		@XmlElement(name="XmlUser", type=XmlUser.class)
+		@XmlElement(name="XmlUser", type=XmlUser.class),
+		@XmlElement(name="XmlComment", type=XmlComment.class)
 	})
 	private List<PageElement> mePage;
 	private Marshaller meMar;
@@ -307,7 +332,8 @@ class XmlBuilder {
 	}
 
 
-	public String buildMainPage(List<GoalGroup> theGoalGroups, List<User> theUsers, List<SimpleEntry<String, String>> theOffices, UserType userType) throws JAXBException {
+	public String buildMainPage(List<GoalGroup> theGoalGroups, List<User> theUsers,
+								List<SimpleEntry<String, String>> theOffices, UserType userType) throws JAXBException {
 		SideMenu tmpMenu = new SideMenu();
 		this.mePage.add(tmpMenu);
 		Group tmpGrp;
@@ -365,22 +391,32 @@ class XmlBuilder {
 		return this.createXml();
 	}
 
-	public String buildChatPage() throws JAXBException {
+	public String buildChatPage(List<Comment> theComments, User viewerUser) throws JAXBException {
 		SideMenu tmpMenu = new SideMenu();
+		Group tmpGrp = new Group("Chat Page");
+		Group tmpChats = new Group("Previous Chat");
 		tmpMenu.addLink(new Link("Main Page", "GET_MAIN"));
+		for (Comment cmnt : theComments)
+			tmpChats.addElement(new XmlComment(cmnt, viewerUser));
+		tmpGrp.addElement(tmpChats);
+		tmpGrp.addElement(new LabledTextArea("Write your comment", me_TXTBOX_COMMENT_ID, ""));
+		tmpGrp.addElement(new Button("Send", "CREATE_CHAT", "null"));
 		this.mePage.add(tmpMenu);
-		// TODO: Add other page parts
+		this.mePage.add(new Button("Back To Main Page", "GET_MAIN", null));
+		this.mePage.add(tmpGrp);
 		return this.createXml();
 	}
 
-	public String buildGoalPage(Goal theGoal, String groupName, boolean isAdmin) throws JAXBException {
+	public String buildGoalPage(Goal theGoal, String groupName, List<Comment> theComments, User viewerUser) throws JAXBException {
 		SideMenu tmpMenu = new SideMenu();
 		Group tmpGrp = new Group("Goal Page");
+		Group tmpComms = new Group("Goal Comments");
+		Group tmpChats = new Group("Previous Comments");
 		tmpMenu.addLink(new Link("Chat", "GET_CHAT"));
 		tmpMenu.addLink(new Link("Main Page", "GET_MAIN"));
 		this.mePage.add(tmpMenu);
 		tmpGrp.addElement(new Button("Back To Main Page", "GET_MAIN", null));
-		if (isAdmin) {
+		if (viewerUser.getUserType() == UserType.ADMIN) {
 			tmpGrp.addElement(new Button("Edit Goal", "GET_GOALEDIT", theGoal.getUUID()));
 			tmpGrp.addElement(new Button("Delete Goal", "DELETE_GOAL", theGoal.getUUID()));
 		}
@@ -388,7 +424,13 @@ class XmlBuilder {
 		tmpGrp.addElement(new LabledTextValue("Goal Description:", theGoal.getDescription()));
 		tmpGrp.addElement(new LabledTextValue("Goal Group:", groupName));
 		tmpGrp.addElement(new XmlGoal(theGoal.getName(), theGoal.getPercentage()));
+		for (Comment cmnt : theComments)
+			tmpChats.addElement(new XmlComment(cmnt, viewerUser));
+		tmpComms.addElement(tmpChats);
+		tmpComms.addElement(new LabledTextArea("Write your comment", me_TXTBOX_COMMENT_ID, ""));
+		tmpComms.addElement(new Button("Send Comment", "CREATE_CHAT", theGoal.getUUID()));
 		this.mePage.add(tmpGrp);
+		this.mePage.add(tmpComms);
 		return this.createXml();
 	}
 
@@ -470,10 +512,7 @@ class XmlBuilder {
 
 	// A private method to get the XML representation of the created page
 	private String createXml() throws JAXBException {
-	//private String createXml(String rootName) throws JAXBException {
 		StringWriter outXml = new StringWriter();
-		//JAXBElement<XmlBuilder> tmpRoot = new JAXBElement<XmlBuilder>(new QName(rootName), XmlBuilder.class, this);
-		//this.meMar.marshal(tmpRoot, outXml);
 		this.meMar.marshal(this, outXml);
 		this.mePage.clear();
 		return outXml.toString();

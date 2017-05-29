@@ -148,7 +148,12 @@ function createUpdateGoal(goalUUID) {
 			allButs[i].disabled = false;
 		}
 	} else if (txtGoalPerc.value < 0 || txtGoalPerc.value > 100) {
-		displayWarning('Percentage should be between 1 and 100.');
+		displayWarning('Percentage should be an integer between 1 and 100.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	} else if (isNaN(txtGoalPerc.value)) {
+		displayWarning('Percentage should be an integer between 1 and 100.');
 		for (var i = 0; i < allButs.length; i++) {
 			allButs[i].disabled = false;
 		}
@@ -321,6 +326,36 @@ function deleteOffice() {
 	};
 	xhttp.open('HTML_DELETE_OFFICE', readCookie());
 	xhttp.send(txtOffice.value);
+}
+function createChat(theGoalUUID) {
+	var txtComment = document.getElementById('txtComment');
+	var allButs = document.getElementsByTagName('button');
+	for (var i = 0; i < allButs.length; i++) {
+		allButs[i].disabled = true;
+	}
+	if (txtComment.value) {
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (xhttp.readyState == 4) {
+				for (var i = 0; i < allButs.length; i++) {
+					allButs[i].disabled = false;
+				}
+				if (xhttp.responseXML && xhttp.responseXML.documentElement.tagName === 'WARNING') {
+					displayWarning(xhttp.responseXML.documentElement.textContent);
+				} else {
+					document.write(xhttp.response);
+					document.close();
+				}
+			}
+		};
+		xhttp.open('HTML_CREATE_CHAT', readCookie());
+		xhttp.send(theGoalUUID + '\n' + txtComment.value);
+	} else {
+		displayWarning('No comment to send.');
+		for (var i = 0; i < allButs.length; i++) {
+			allButs[i].disabled = false;
+		}
+	}
 }
 function deleteGoal(goalUUID) {
 	var xhttp = new XMLHttpRequest();

@@ -7,36 +7,45 @@ import java.time.LocalDateTime;
 
 /**
  * @author Janty Azmat
- *
  */
-class Comment {
+public class Comment {
 	// Fields
-	private User meUser;
-	private String meTxt;
+	private String meUserUUID;
+	private String meGoalUUID;
+	private String meContent;
 	private LocalDateTime meDateTime;
-	private Goal meContainer; // The comment container. If this is null (maybe changes) this this comment is a chat page comment
+	private User meUser; // It will be null if the user is deleted
 
-	public Comment(User theUser, String theText, LocalDateTime theDateTime, Goal theContainer) {
-		this.meUser = theUser;
-		this.meTxt = theText;
+	public Comment(String userUUID, String goalUUID, String theContent, LocalDateTime theDateTime, User theUser) {
+		this.meUserUUID = userUUID;
+		this.meGoalUUID = goalUUID;
+		this.meContent = theContent;
 		this.meDateTime = theDateTime;
-		this.meContainer = theContainer;
+		this.meUser = theUser;
 	}
 
 	/**
-	 * Returns the comment's user.
-	 * @return	the comment's user
+	 * Returns the comment's user's ID.
+	 * @return	the comment's user's ID
 	 */
-	public User getUser() {
-		return this.meUser;
+	public String getUserUUID() {
+		return this.meUserUUID;
 	}
 
 	/**
-	 * Returns the comment's text.
-	 * @return	the comment's text
+	 * Returns the comment's goals's ID, or the 'null' string if the comment belongs to the chat page.
+	 * @return	the comment's goals's ID or 'null' string.
 	 */
-	public String getText() {
-		return this.meTxt;
+	public String getGoalUUID() {
+		return this.meGoalUUID;
+	}
+
+	/**
+	 * Returns the comment's text content.
+	 * @return	the comment's text content
+	 */
+	public String getContent() {
+		return this.meContent;
 	}
 
 	/**
@@ -48,18 +57,10 @@ class Comment {
 	}
 
 	/**
-	 * Returns the goal that contains this comment, or 'null' if the main chat page contains the comment.
-	 * @return	the comment's container
+	 * Returns the comment's user.
+	 * @return	the comment's user
 	 */
-	public Goal getContainer() {
-		return this.meContainer;
-	}
-
-	/**
-	 * Returns the office this comment belongs to.
-	 * @return	 the office this comment belongs to
-	 */
-	public String getOfficeUUID() {
-		return this.meUser.getOfficeUUID();
+	public User getUser() {
+		return this.meUser;
 	}
 }

@@ -62,7 +62,7 @@ body {
 	padding: 2px;
 }
 .percentage {
-	position: absolute;   
+	position: absolute;
 	left: 50%;
 }
 .progressBarIn {
@@ -89,10 +89,10 @@ body {
 	cursor: pointer;
 }
 .generalButton:hover {
-    background-color: lightblue;
+	background-color: lightblue;
 }
 .generalButton:disabled {
-    background-color: gray;
+	background-color: gray;
 }
 .txtBox {
 	outline: 0;
@@ -110,6 +110,53 @@ body {
 	margin: 30px auto 30px;
 	padding: 20px;
 	box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+.talkBubble {
+	margin: 15px;
+	display: inline-block;
+	position: relative;
+	width: 80%;
+	max-width: 80%;
+	padding: 1em;
+	white-space: pre-wrap;
+	border-radius: 10px;
+}
+.arrowLeftSame {
+	float: left;
+	background-color: lightblue;
+}
+.arrowLeftSame:after {
+	content: '';
+	position: absolute;
+	left: -20px;
+	top: 0px;
+	border: 22px solid;
+	border-color: lightblue transparent transparent;
+}
+.arrowLeftOther {
+	float: left;
+	background-color: lightgray;
+}
+.arrowLeftOther:after {
+	content: '';
+	position: absolute;
+	left: -20px;
+	top: 0px;
+	border: 22px solid;
+	border-color: lightgray transparent transparent;
+}
+.arrowRight {
+	float: right;
+	width: 80%;
+	background-color: lightgreen;
+}
+.arrowRight:after {
+	content: '';
+	position: absolute;
+	right: -20px;
+	top: 0px;
+	border: 20px solid;
+	border-color: lightgreen transparent transparent;
 }
 </style>
 </head><body><div class='warning-msg' id='WARNING'></div>
