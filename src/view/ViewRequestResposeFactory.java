@@ -32,7 +32,7 @@ class ViewRequestResposeFactory {
 		IViewRequest outReq = null;
 		switch (this.meType) {
 			case DATA: // Here, we choose the concrete ViewDataRequest
-				outReq = new ViewDataRequest(this.meReq);
+				outReq = new ViewPhoneRequest(this.meReq);
 				break;
 			case HTML: // Here, we choose the concrete ViewHtmlRequest
 				outReq = new ViewHtmlRequest(this.meReq);
@@ -44,7 +44,7 @@ class ViewRequestResposeFactory {
 		IViewResponse outResp = null;
 		switch (this.meType) {
 			case DATA: // Here, we choose the concrete ViewDataResponse
-				outResp = new ViewDataResponse(rawResponse);
+				outResp = new ViewPhoneResponse(rawResponse);
 				break;
 			case HTML: // Here, we choose the concrete ViewHtmlResponse
 				outResp = new ViewHtmlResponse(rawResponse);

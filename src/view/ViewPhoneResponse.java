@@ -7,9 +7,9 @@ package view;
  * A class that is responsible for the translation of the raw string response to an Phone DATA response that the client's phone can understand.
  * @author Janty Azmat
  */
-class ViewDataResponse implements IViewResponse {
+class ViewPhoneResponse implements IViewResponse {
 
-	public ViewDataResponse(String rawResponse) {
+	public ViewPhoneResponse(String rawResponse) {
 	}
 
 	@Override

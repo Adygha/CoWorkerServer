@@ -7,9 +7,9 @@ package view;
  * A class that is responsible for the translation of the PHONE data request to a raw string request that the model can understand.
  * @author Janty Azmat
  */
-class ViewDataRequest implements IViewRequest {
+class ViewPhoneRequest implements IViewRequest {
 
-	public ViewDataRequest(String reqestData) {
+	public ViewPhoneRequest(String reqestData) {
 	}
 
 	@Override
